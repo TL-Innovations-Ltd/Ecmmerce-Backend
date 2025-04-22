@@ -6,7 +6,10 @@ const authUser = (req, res, next) => {
   if (!authHeader) return res.status(401).json({ message: 'No token provided' });
 
   try {
-    const decoded = jwt.verify(authHeader, process.env.JWT_SECRET || 'yoursecretkey');
+    const decoded = jwt.verify(
+      authHeader,
+      process.env.JWT_SECRET || 'yoursecretkey',
+    );
     req.user = decoded;
     next();
   } catch (err) {
