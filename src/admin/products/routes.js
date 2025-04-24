@@ -6,9 +6,12 @@ const fs = require('fs');
 const productController = require('./controllers/product_controller');
 
 const uploadDir = 'uploads/';
+
+// Only create uploads folder if NOT running on Vercel
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
+
 // Multer config for file uploads
 const storage = multer.diskStorage({
     destination(req, file, cb) {

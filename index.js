@@ -11,7 +11,7 @@ const swaggerSpec = require('./swagger');
 require('dotenv').config();
 
 const app = express();
-// test
+
 // Middleware
 app.use(cors({
   origin: '*',
