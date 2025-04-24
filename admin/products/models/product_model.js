@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema(
     details: [{ type: String }],
     featuredProduct: { type: Boolean, default: false },
     newProduct: { type: Boolean, default: false },
-    inStock: { type: Boolean, default: true },
+    stock: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

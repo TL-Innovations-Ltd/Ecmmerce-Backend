@@ -24,6 +24,7 @@ async function uploadImagesToCloudinary(files) {
 }
 
 module.exports = {
+
   createProductService: async ({ body, files }) => {
     const {
       name,
@@ -34,7 +35,7 @@ module.exports = {
       details,
       featuredProduct,
       newProduct,
-      inStock,
+      stock,
     } = body;
     // Assume details is already an array from frontend
     const detailsArray = details;
@@ -59,7 +60,7 @@ module.exports = {
       details: detailsArray,
       featuredProduct,
       newProduct,
-      inStock,
+      stock,
     });
     await product.save();
     return 'Product Added Successfully';
@@ -101,7 +102,7 @@ module.exports = {
         img => !removeImages.some(rm => rm.public_id === img.public_id)
       );
     }
-  
+
     // 3. Upload new images (if any)
     let newImages = [];
     if (files && files.length > 0) {
@@ -112,17 +113,17 @@ module.exports = {
       }));
       product.images.push(...newImages);
     }
-  
+
     // 4. Update other fields (excluding remove_img)
     const updatableFields = { ...body };
     delete updatableFields.remove_img;
     Object.assign(product, updatableFields);
-  
+
     // 5. Ensure details is array
     if (product.details && typeof product.details === 'string') {
       product.details = [product.details];
     }
-  
+
     // 6. Save and return updated product
     await product.save();
     return product;

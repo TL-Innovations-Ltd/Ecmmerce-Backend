@@ -17,7 +17,10 @@ const options = {
   },
   apis: [
     './admin/products/docs/swagger_docs.js',
-    './client/user/docs/swagger_docs.js'
+    './client/user/docs/swagger_docs.js',
+    './client/cart/docs/swagger_docs.js',
+    './admin/category/docs/swagger_docs.js',
+    './client/order/docs/swagger_docs.js'
   ] // path where your route files are
 };
 

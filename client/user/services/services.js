@@ -37,7 +37,7 @@ module.exports = {
     if (!isMatch) throw new Error('Invalid credentials');
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '7d',
     });
     return { success: true, token };
   },
