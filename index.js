@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./utils/connection');
-const userRoutes = require('./client/user/routes');
-const productRoutes = require('./admin/products/routes');
-const cartRoutes = require('./client/cart/routes');
-const categoryRoutes = require('./admin/category/routes');
-const orderRoutes = require('./client/order/routes');
+const connectDB = require('./src/utils/connection');
+const userRoutes = require('./src/client/user/routes');
+const productRoutes = require('./src/admin/products/routes');
+const cartRoutes = require('./src/client/cart/routes');
+const categoryRoutes = require('./src/admin/category/routes');
+const orderRoutes = require('./src/client/order/routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 require('dotenv').config();
