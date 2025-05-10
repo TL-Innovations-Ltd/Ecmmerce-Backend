@@ -239,6 +239,41 @@
 
 /**
  * @swagger
+ * /admin/products/search:
+ *   get:
+ *     summary: Search products by name, category, etc.
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Partial or full product name (case-insensitive)
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Exact category name
+ *     responses:
+ *       200:
+ *         description: List of products matching search criteria
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 products:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Product'
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     Product:

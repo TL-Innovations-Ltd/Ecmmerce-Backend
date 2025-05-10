@@ -1,12 +1,12 @@
-const Order = require('../models/order_models');
-const Cart = require('../../cart/models/cart_models');
+const Order = require("../models/order_models");
+const Cart = require("../../cart/models/cart_models");
 
 module.exports = {
   // Create Order from Cart
-  createOrderFromCart : async (userId, address) => {
-    const cart = await Cart.findOne({ user: userId }).populate('items.product');
+  createOrderFromCart: async (userId, address) => {
+    const cart = await Cart.findOne({ user: userId }).populate("items.product");
     if (!cart || !cart.items.length) {
-      throw new Error('Cart is empty.');
+      throw new Error("Cart is empty.");
     }
     // Validate cart items and calculate total
     let totalPrice = 0;
@@ -19,7 +19,7 @@ module.exports = {
       orderItems.push({
         product: item.product._id,
         quantity: item.quantity,
-        price: item.product.price
+        price: item.product.price,
       });
     }
     // Create order
@@ -27,9 +27,9 @@ module.exports = {
       user: userId,
       items: orderItems,
       totalPrice,
-      address : address
+      address,
     });
-    
+
     await order.save();
     // Reduce product stock
     for (const item of cart.items) {
@@ -43,10 +43,32 @@ module.exports = {
   },
 
   // Get User Order History
-  getUserOrderHistory : async (userId) => {
+  getUserOrderHistory: async (userId) => {
     return Order.find({ user: userId })
-      .populate('items.product')
+      .populate("items.product")
       .sort({ createdAt: -1 });
-  }
+  },
 
+  // Search User Order History
+  searchUserOrderHistory: async (userId, filters) => {
+    const query = { user: userId };
+    if (filters.status) {
+      query.status = filters.status;
+    }
+    if (filters.startDate || filters.endDate) {
+      query.createdAt = {};
+      if (filters.startDate) {
+        query.createdAt.$gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        query.createdAt.$lte = new Date(filters.endDate);
+      }
+    }
+    if (filters.orderId) {
+      query._id = filters.orderId;
+    }
+    return Order.find(query)
+      .populate("items.product")
+      .sort({ createdAt: -1 });
+  },
 };

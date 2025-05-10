@@ -41,19 +41,61 @@
  * @swagger
  * /client/order/history:
  *   get:
- *     summary: Get the current user's order history
+ *     summary: Get the current user's order history (with payment methods)
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of user's orders
+ *         description: List of user's orders, including payment methods from user profile
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Order'
+ *                 $ref: '#/components/schemas/OrderWithPayment'
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /client/order/history/search:
+ *   post:
+ *     summary: Search/filter the current user's order history
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [Pending, Shipped, Delivered]
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Start date for filtering (YYYY-MM-DD)
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *                 description: End date for filtering (YYYY-MM-DD)
+ *               orderId:
+ *                 type: string
+ *                 description: Specific order ID
+ *     responses:
+ *       200:
+ *         description: List of filtered orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/OrderWithPayment'
  *       500:
  *         description: Server error
  */
@@ -90,53 +132,24 @@
  *       type: object
  *       properties:
  *         product:
- *           $ref: '#/components/schemas/Product'
- *           description: Full product details
+ *           type: string
  *         quantity:
  *           type: integer
  *         price:
  *           type: number
- *     Product:
+ *     PaymentMethod:
  *       type: object
  *       properties:
- *         _id:
+ *         cardType:
  *           type: string
- *         name:
+ *         cardHolder:
  *           type: string
- *         category:
+ *         cardNumber:
  *           type: string
- *         price:
- *           type: number
- *         title:
+ *         expiryDate:
  *           type: string
- *         description:
+ *         cvv:
  *           type: string
- *         images:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               url:
- *                 type: string
- *               public_id:
- *                 type: string
- *         details:
- *           type: array
- *           items:
- *             type: string
- *         featuredProduct:
- *           type: boolean
- *         newProduct:
- *           type: boolean
- *         stock:
- *           type: integer
- *           description: Available stock for the product
- *         createdAt:
- *           type: string
- *           format: date-time
- *         updatedAt:
- *           type: string
- *           format: date-time
  *     Order:
  *       type: object
  *       properties:
@@ -158,4 +171,13 @@
  *         createdAt:
  *           type: string
  *           format: date-time
+ *     OrderWithPayment:
+ *       allOf:
+ *         - $ref: '#/components/schemas/Order'
+ *         - type: object
+ *           properties:
+ *             paymentMethods:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PaymentMethod'
  */

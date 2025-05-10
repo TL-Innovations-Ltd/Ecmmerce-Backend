@@ -1,10 +1,10 @@
-const CartService = require('../services/cart_services');
+const CartService = require("../services/cart_services");
 
 module.exports = {
   // Add product to cart
   addToCart: async (req, res) => {
     try {
-      const userId = req.user.userId;
+      const { userId } = req.user;
       const { productId, quantity } = req.body;
       const cart = await CartService.addToCart(userId, productId, quantity);
       res.status(200).json(cart);
@@ -16,9 +16,13 @@ module.exports = {
   // Update product quantity in cart
   updateCartItem: async (req, res) => {
     try {
-      const userId = req.user.userId;
+      const { userId } = req.user;
       const { productId, quantity } = req.body;
-      const cart = await CartService.updateCartItem(userId, productId, quantity);
+      const cart = await CartService.updateCartItem(
+        userId,
+        productId,
+        quantity,
+      );
       res.status(200).json(cart);
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -28,7 +32,7 @@ module.exports = {
   // Remove product from cart
   removeCartItem: async (req, res) => {
     try {
-      const userId = req.user.userId;
+      const { userId } = req.user;
       const { productId } = req.body;
       const cart = await CartService.removeCartItem(userId, productId);
       res.status(200).json(cart);
@@ -40,12 +44,11 @@ module.exports = {
   // Get all cart items for user
   getCart: async (req, res) => {
     try {
-      const userId = req.user.userId;
+      const { userId } = req.user;
       const cart = await CartService.getCart(userId);
       res.status(200).json(cart);
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
-  }
-
+  },
 };

@@ -13,4 +13,11 @@ router.get('/profile', authUser, (req, res) => {
   res.json({ sucess: true, user: req.user });
 });
 
+// Update profile route (protected)
+router.put('/profile', authUser, userController.updateProfile);
+
+// Favorite products routes
+router.post('/favorites/add', authUser, userController.addFavorite);
+router.post('/favorites/remove', authUser, userController.removeFavorite);
+
 module.exports = router;
