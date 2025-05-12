@@ -28,7 +28,7 @@ connectDB();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/test", (req, res) => {
-  res.status(200).json({ message: "Ecomerce Backedn Deployed Successfully", port: process.env.PORT });
+  res.status(200).json({ message: "Ecommerce Backend Deployed Successfully", port: process.env.PORT });
 });
 
 app.use("/client/user", userRoutes);
