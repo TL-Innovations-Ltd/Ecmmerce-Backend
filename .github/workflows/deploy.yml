@@ -20,5 +20,5 @@ jobs:
           key: ${{ secrets.VPS_ECOM_SSH_KEY }}
           port: ${{ secrets.VPS_ECOM_PORT }}
           script: |
-            cd /var/www/ecommerce_backend/Ecommerce_Backend
+            cd /var/www/ecommerce_backend/Ecmmerce-Backend
             ./.scripts/deploy.sh

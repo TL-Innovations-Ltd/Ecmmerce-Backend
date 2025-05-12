@@ -8,7 +8,7 @@ source "$NVM_DIR/nvm.sh"
 nvm use --lts
 
 # Go to your project directory
-cd /var/www/ecommerce_backend/Ecmmerce-Backend# || exit
+cd /var/www/ecommerce_backend/Ecmmerce-Backend || exit
 
 # Pull latest code
 echo "Pulling latest changes from Git..."

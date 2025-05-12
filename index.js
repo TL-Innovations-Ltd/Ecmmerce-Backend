@@ -24,8 +24,6 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 connectDB();
 
-//hello suzair
-
 // Swagger route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
