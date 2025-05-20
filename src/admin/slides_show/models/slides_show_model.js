@@ -29,7 +29,7 @@ const SlideSchema = new mongoose.Schema({
     meta: {
         index: Number,
         status: String
-    }
+    },
 });
 
 const SlideshowSchema = new mongoose.Schema({
