@@ -9,9 +9,7 @@ router.post('/signup', userController.signup);
 router.post('/login', userController.login);
 
 // Example of a protected route
-router.get('/profile', authUser, (req, res) => {
-  res.json({ sucess: true, user: req.user });
-});
+router.get('/profile', authUser, userController.getUserProfile);
 
 // Update profile route (protected)
 router.put('/profile', authUser, userController.updateProfile);

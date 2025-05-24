@@ -4,6 +4,7 @@ const {
   addFavoriteService,
   removeFavoriteService,
   updateProfileService,
+  getUserProfileService
 } = require("../services/services");
 
 module.exports = {
@@ -57,6 +58,18 @@ module.exports = {
       res.json(result);
     } catch (err) {
       res.status(400).json({ message: err.message });
+    }
+  },
+  // Get user profile
+  getUserProfile: async (req, res) => {
+    try {
+      const user = await getUserProfileService(req.user.userId);
+      res.json({ 
+        success: true, 
+        data  :  user
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
     }
   },
 };

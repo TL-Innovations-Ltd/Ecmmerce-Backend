@@ -21,7 +21,7 @@ module.exports = {
     return { success: true, message: "User created successfully" };
   },
 
-  updateProfileService: async (userId, profileData) => {
+   updateProfileService: async (userId, profileData) => {
     // profileData can contain phone, address, and paymentMethods
     const update = {};
     if (profileData.phone) update.phone = profileData.phone;
@@ -92,5 +92,11 @@ module.exports = {
     );
     await user.save();
     return { success: true, message: "Product removed from favorites" };
+  },
+
+  getUserProfileService : async (userId) => {
+    const user = await User.findById(userId).select('name email');
+    if (!user) throw new Error("User not found");
+    return user;
   },
 };
