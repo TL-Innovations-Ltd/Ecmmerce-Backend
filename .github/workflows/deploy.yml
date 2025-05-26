@@ -21,4 +21,5 @@ jobs:
           port: ${{ secrets.VPS_ECOM_PORT }}
           script: |
             cd /var/www/ecommerce_backend/Ecmmerce-Backend
+            chmod +x ./.scripts/deploy.sh
             ./.scripts/deploy.sh
