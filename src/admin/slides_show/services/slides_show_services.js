@@ -36,9 +36,8 @@ class SlideshowService {
   // Create or Update Slideshow
   async createOrUpdateSlideshow(slideshowData) {
     try {
-  
       const { _id, ...updateData } = slideshowData;
-
+      
       if (_id) {
         // Update existing slideshow
         const updatedSlideshow = await Slideshow.findByIdAndUpdate(

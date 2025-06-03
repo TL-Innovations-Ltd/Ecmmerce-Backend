@@ -4,7 +4,7 @@ class SlideshowController {
   // Create or Update Slideshow
   async createOrUpdateSlideshow(req, res) {
     try {
-      const slideshow = await SlideshowService.createOrUpdateSlideshow(req);
+      const slideshow = await SlideshowService.createOrUpdateSlideshow(req.body);
       
       res.status(200).json({
         success: true,
