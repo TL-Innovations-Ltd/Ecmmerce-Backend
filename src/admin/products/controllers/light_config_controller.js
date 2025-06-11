@@ -83,6 +83,28 @@ class LightConfigController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  /**
+   * @route   GET /api/products/light-configs
+   * @desc    Get all light configurations
+   * @access  Public
+   */
+  async getAllConfigs(req, res) {
+    try {
+      const configs = await lightConfigService.getAllConfigs();
+      
+      res.json({
+        success: true,
+        data: configs
+      });
+    } catch (error) {
+      console.error('Error in getAllConfigs:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Error fetching light configurations'
+      });
+    }
+  }
 }
 
 module.exports = new LightConfigController();

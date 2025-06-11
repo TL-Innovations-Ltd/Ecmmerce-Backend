@@ -6,31 +6,33 @@ exports.validateConfig = [
   
   // Validate thumbnail object
   body('thumbnail')
-    .exists()
-    .withMessage('Thumbnail is required')
+    .optional()
+    .isObject()
+    .withMessage('Thumbnail must be an object')
     .bail()
     .custom((value) => {
-      if (typeof value !== 'object' || value === null) {
-        throw new Error('Thumbnail must be an object');
-      }
-      if (!value.url || typeof value.url !== 'string') {
-        throw new Error('Thumbnail must have a valid URL string');
-      }
-      if (!value.public_id || typeof value.public_id !== 'string') {
-        throw new Error('Thumbnail must have a public_id string');
+      if (value) {
+        if (value.url && typeof value.url !== 'string') {
+          throw new Error('Thumbnail URL must be a string');
+        }
+        if (value.public_id && typeof value.public_id !== 'string') {
+          throw new Error('Thumbnail public_id must be a string');
+        }
       }
       return true;
     }),
   
-  // Validate config object
-  body('config').isObject().withMessage('Config must be an object'),
-  body('config.lightType').isString().notEmpty().withMessage('Light type is required'),
-  body('config.pendantCount').isInt({ min: 0 }).withMessage('Pendant count must be a positive number'),
-  body('config.cableColor').isString().notEmpty().withMessage('Cable color is required'),
-  body('config.cableLength').isString().notEmpty().withMessage('Cable length is required'),
-  body('config.pendantDesigns')
-    .isArray({ min: 0 })
-    .withMessage('Pendant designs must be an array')
+  // Config validation - only check if it exists and is an object
+  body('config')
+    .exists().withMessage('Config is required')
+    .bail()
+    .isObject().withMessage('Config must be an object')
+    .bail()
+    .custom((value, { req }) => {
+      // Pass through the config as-is without validation
+      req.body.config = value;
+      return true;
+    })
 ];
 
 exports.validateIdParam = [

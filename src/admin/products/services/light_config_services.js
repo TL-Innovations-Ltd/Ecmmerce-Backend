@@ -36,31 +36,21 @@ class LightConfigService {
    */
   async createConfig(configData) {
     try {
-      const config = new LightConfig({
+      // Prepare the config object
+      const configObj = {
         name: configData.name,
         thumbnail: {
-          url: configData.thumbnail?.url,
-          public_id: configData.thumbnail?.public_id
+          url: configData.thumbnail?.url || '',
+          public_id: configData.thumbnail?.public_id || ''
         },
-        config: {
-          lightType: configData.config?.lightType ,
-          pendantCount: configData.config?.pendantCount ,
-          cableColor: configData.config?.cableColor ,
-          cableLength: configData.config?.cableLength ,
-          pendantDesigns: Array.isArray(configData.config?.pendantDesigns)
-            ? configData.config.pendantDesigns
-            : []
-        },
+        config: configData.config, // Use the config as-is since it's now Mixed type
         iframe: Array.isArray(configData.iframe) ? configData.iframe : [],
         user_id: configData.user_id
-      });
+      };
       
-      try {
-        const savedConfig = await config.save();
-        return savedConfig;
-      } catch (saveError) {
-        throw saveError;
-      }
+      const config = new LightConfig(configObj);
+      const savedConfig = await config.save();
+      return savedConfig;
     } catch (error) {
       throw new Error(`Failed to create configuration: ${error.message}`);
     }
@@ -89,6 +79,24 @@ class LightConfigService {
       return await LightConfig.find({ user_id: userId }).sort({ createdAt: -1 });
     } catch (error) {
       throw new Error(`Error fetching user's light configs: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get all light configurations
+   * @returns {Promise<Array>} List of configurations
+   */
+  async getAllConfigs() {
+    try {
+   
+   
+      
+      // Get all matching configs
+      const configs = await LightConfig.find({}).sort({ createdAt: -1 }).lean();
+      
+      return configs;
+    } catch (error) {
+      throw new Error(`Error fetching light configurations: ${error.message}`);
     }
   }
 
