@@ -26,8 +26,33 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage,
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = path.join(process.cwd(), 'uploads', 'web_configurator');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+    }
+  }),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB per file
+  fileFilter: (req, file, cb) => {
+    // Accept images and videos
+    const filetypes = /jpeg|jpg|png|gif|mp4|webm|mov|avi/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image and video files are allowed'));
+    }
+  }
 });
 
 // CRUD Product Routes
@@ -41,10 +66,11 @@ router.delete("/:id", productController.deleteProduct);
 router.post("/search", productController.searchProducts);
 
 // Light Configuration Routes
-router.post("/light-configs", authUser, validateConfig, lightConfigController.createConfig);
-router.get("/light-configs/:id", authUser, validateIdParam, lightConfigController.getConfig);
-router.get("/users/light-configs", authUser, lightConfigController.getUserConfigs);
-router.put("/light-configs/:id", authUser, validateIdParam, validateConfig, lightConfigController.updateConfig);
-router.delete("/light-configs/:id", authUser, validateIdParam, lightConfigController.deleteConfig);
+router.post("/light-configs", validateConfig, lightConfigController.createConfig);
+router.get("/light-configs/:id", validateIdParam, lightConfigController.getConfig);
+router.get("/users/light-configs", lightConfigController.getUserConfigs);
+router.put("/light-configs/:id", validateIdParam, validateConfig, lightConfigController.updateConfig);
+router.delete("/light-configs/:id", validateIdParam, lightConfigController.deleteConfig);
 
 module.exports = router;
+ 

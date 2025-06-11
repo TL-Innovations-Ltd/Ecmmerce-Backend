@@ -10,21 +10,19 @@ class LightConfigController {
         return res.status(400).json({ errors: errors.array() });
       }
 
-      // Get user_id from the authenticated user
-      const user_id = req.user.userId; // User ID is stored in req.user.userId by the auth middleware
+      // Get user_id from request body (already validated by middleware)
+      const { user_id, ...rest } = req.body;
       
-      if (!user_id) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-      
+      // Prepare config data
       const configData = {
-        ...req.body,
-        user_id // Add user_id from the authenticated user
+        ...rest,
+        user_id
       };
       
       const config = await lightConfigService.createConfig(configData);
       res.status(201).json(config);
     } catch (error) {
+      console.error('Error in createConfig:', error);
       res.status(500).json({ message: error.message });
     }
   }

@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 
 const lightConfigSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
-  date: { type: Date, default: Date.now },
   thumbnail: {
     url: { type: String },
     public_id: { type: String }
@@ -15,7 +13,7 @@ const lightConfigSchema = new mongoose.Schema({
     cableLength: { type: String, required: true },
     pendantDesigns: [{ type: String, required: true }]
   },
-  iframe: { type: Object, default: {} },
+  iframe: [String],
   user_id: { type: String, required: true }
 }, { timestamps: true });
 

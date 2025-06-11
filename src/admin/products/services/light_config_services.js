@@ -1,81 +1,76 @@
 const LightConfig = require('../models/light_config_model');
-const cloudinary = require('cloudinary').v2;
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-
+const mongoose = require('mongoose');
 class LightConfigService {
-   
-  async uploadBase64Image(base64Data, folder = 'web_configurator') {
-    try {
-      // Remove data URL prefix if present
-      const base64Image = base64Data.split(';base64,').pop();
-      
-      const result = await cloudinary.uploader.upload(
-        `data:image/jpeg;base64,${base64Image}`,
-        {
-          folder: folder,
-          resource_type: 'auto',
-          format: 'webp',
-          quality: 'auto'
-        }
-      );
-
-      return {
-        url: result.secure_url,
-        public_id: result.public_id
-      };
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload image to Cloudinary');
-    }
-  }
-
-  async deleteCloudinaryImage(publicId) {
-    try {
-      if (!publicId) return;
-      await cloudinary.uploader.destroy(publicId);
-    } catch (error) {
-      console.error('Error deleting image from Cloudinary:', error);
-      // Don't throw error to prevent deletion failure if image delete fails
-    }
-  }
-
-  async createConfig(configData) {
-    const session = await LightConfig.startSession();
-    session.startTransaction();
-
-    try {
-      const { thumbnail, ...restData } = configData;
-      let thumbnailData = null;
-
-      // Upload thumbnail if provided
-      if (thumbnail) {
-        thumbnailData = await this.uploadBase64Image(thumbnail);
+  /**
+   * Validate thumbnail URL
+   * @param {string} url - URL to validate
+   * @returns {boolean} True if URL is valid
+   */
+  isValidThumbnail(thumbnail) {
+    if (!thumbnail) return false;
+    // If thumbnail is a string, check if it's a valid URL
+    if (typeof thumbnail === 'string') {
+      try {
+        new URL(thumbnail);
+        return true;
+      } catch (e) {
+        return false;
       }
+    }
+    // If thumbnail is an object, check if it has a valid URL
+    if (thumbnail && typeof thumbnail === 'object' && thumbnail.url) {
+      try {
+        new URL(thumbnail.url);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
 
+  /**
+   * Create a new light configuration
+   * @param {Object} configData - Configuration data
+   * @returns {Promise<Object>} The created configuration
+   */
+  async createConfig(configData) {
+    try {
       const config = new LightConfig({
-        ...restData,
-        thumbnail: thumbnailData
+        name: configData.name,
+        thumbnail: {
+          url: configData.thumbnail?.url,
+          public_id: configData.thumbnail?.public_id
+        },
+        config: {
+          lightType: configData.config?.lightType ,
+          pendantCount: configData.config?.pendantCount ,
+          cableColor: configData.config?.cableColor ,
+          cableLength: configData.config?.cableLength ,
+          pendantDesigns: Array.isArray(configData.config?.pendantDesigns)
+            ? configData.config.pendantDesigns
+            : []
+        },
+        iframe: Array.isArray(configData.iframe) ? configData.iframe : [],
+        user_id: configData.user_id
       });
-
-      const savedConfig = await config.save({ session });
-      await session.commitTransaction();
-      session.endSession();
-
-      return savedConfig;
+      
+      try {
+        const savedConfig = await config.save();
+        return savedConfig;
+      } catch (saveError) {
+        throw saveError;
+      }
     } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      throw new Error(`Error creating light config: ${error.message}`);
+      throw new Error(`Failed to create configuration: ${error.message}`);
     }
   }
 
+  /**
+   * Get a configuration by ID
+   * @param {string} id - Configuration ID
+   * @returns {Promise<Object>} The configuration
+   */
   async getConfigById(id) {
     try {
       return await LightConfig.findOne({ _id: id });
@@ -84,6 +79,11 @@ class LightConfigService {
     }
   }
 
+  /**
+   * Get all configurations for a user
+   * @param {string} userId - User ID
+   * @returns {Promise<Array>} List of configurations
+   */
   async getConfigsByUser(userId) {
     try {
       return await LightConfig.find({ user_id: userId }).sort({ createdAt: -1 });
@@ -92,46 +92,71 @@ class LightConfigService {
     }
   }
 
+  /**
+   * Update a configuration
+   * @param {string} id - Configuration ID
+   * @param {Object} updateData - Data to update
+   * @returns {Promise<Object>} Updated configuration
+   */
   async updateConfig(id, updateData) {
     const session = await LightConfig.startSession();
     session.startTransaction();
 
     try {
-      const { thumbnail, ...restData } = updateData;
       const config = await LightConfig.findById(id).session(session);
 
       if (!config) {
         throw new Error('Configuration not found');
       }
 
-      // Handle thumbnail update if new thumbnail is provided
-      if (thumbnail) {
-        // Delete old thumbnail if exists
-        if (config.thumbnail?.public_id) {
-          await this.deleteCloudinaryImage(config.thumbnail.public_id);
-        }
-        // Upload new thumbnail
-        const thumbnailData = await this.uploadBase64Image(thumbnail);
-        restData.thumbnail = thumbnailData;
+      // Validate thumbnail if provided
+      if (updateData.thumbnail && !this.isValidThumbnail(updateData.thumbnail)) {
+        throw new Error('Invalid thumbnail format. Must be a valid URL or object with url property');
       }
+
+      // Prepare update object
+      const updateObj = {
+        name: updateData.name || config.name,
+        // Handle thumbnail update - keep existing if not provided
+        thumbnail: updateData.thumbnail 
+          ? (typeof updateData.thumbnail === 'string' 
+              ? { url: updateData.thumbnail, public_id: '' } 
+              : updateData.thumbnail)
+          : config.thumbnail,
+        config: {
+          lightType: updateData.config?.lightType || config.config?.lightType || 'ceiling',
+          pendantCount: updateData.config?.pendantCount !== undefined 
+            ? updateData.config.pendantCount 
+            : (config.config?.pendantCount || 0),
+          cableColor: updateData.config?.cableColor || config.config?.cableColor || 'black',
+          cableLength: updateData.config?.cableLength || config.config?.cableLength || '1m',
+          pendantDesigns: updateData.config?.pendantDesigns || config.config?.pendantDesigns || []
+        },
+        iframe: updateData.iframe || config.iframe || {},
+        updatedAt: new Date()
+      };
 
       const updatedConfig = await LightConfig.findByIdAndUpdate(
         id,
-        { ...restData, updatedAt: new Date() },
+        updateObj,
         { new: true, session }
       );
 
       await session.commitTransaction();
-      session.endSession();
-
       return updatedConfig;
     } catch (error) {
       await session.abortTransaction();
-      session.endSession();
       throw new Error(`Error updating light config: ${error.message}`);
+    } finally {
+      session.endSession();
     }
   }
 
+  /**
+   * Delete a configuration
+   * @param {string} id - Configuration ID
+   * @returns {Promise<Object>} Deleted configuration
+   */
   async deleteConfig(id) {
     const session = await LightConfig.startSession();
     session.startTransaction();
@@ -142,22 +167,21 @@ class LightConfigService {
         throw new Error('Configuration not found');
       }
 
-      // Delete thumbnail from Cloudinary if exists
-      if (config.thumbnail?.public_id) {
-        await this.deleteCloudinaryImage(config.thumbnail.public_id);
+      // No need to delete remote URLs, just validate if needed
+      if (config.thumbnail && !this.isValidThumbnailUrl(config.thumbnail)) {
+        console.warn('Skipping cleanup of invalid thumbnail URL:', config.thumbnail);
       }
 
       // Delete the config
       const result = await LightConfig.findByIdAndDelete(id).session(session);
 
       await session.commitTransaction();
-      session.endSession();
-
       return result;
     } catch (error) {
       await session.abortTransaction();
-      session.endSession();
       throw new Error(`Error deleting light config: ${error.message}`);
+    } finally {
+      session.endSession();
     }
   }
 }
