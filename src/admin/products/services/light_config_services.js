@@ -176,7 +176,7 @@ class LightConfigService {
       }
 
       // No need to delete remote URLs, just validate if needed
-      if (config.thumbnail && !this.isValidThumbnailUrl(config.thumbnail)) {
+      if (config.thumbnail && !this.isValidThumbnail(config.thumbnail)) {
         console.warn('Skipping cleanup of invalid thumbnail URL:', config.thumbnail);
       }
 
