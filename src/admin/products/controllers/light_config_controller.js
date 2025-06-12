@@ -44,7 +44,7 @@ class LightConfigController {
 
   async getUserConfigs(req, res) {
     try {
-      const userId = req.user.userId; // Get user ID from authenticated user
+      const {userId} = req.body; // Get user ID from authenticated user
       const configs = await lightConfigService.getConfigsByUser(userId);
       res.json(configs);
     } catch (error) {
