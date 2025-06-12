@@ -59,7 +59,7 @@ const upload = multer({
 // Light Configuration Routes
 router.post("/light-configs", validateConfig, lightConfigController.createConfig);
 router.get("/light-configs/:id", validateIdParam, lightConfigController.getConfig);
-router.get("/users/light-configs", lightConfigController.getUserConfigs);
+router.post("/users/light-configs", lightConfigController.getUserConfigs);
 router.put("/light-configs/:id", validateIdParam, validateConfig, authUser, lightConfigController.updateConfig);
 router.delete("/light-configs/:id", validateIdParam, lightConfigController.deleteConfig);
 router.get("/all-light-configs", lightConfigController.getAllConfigs);
