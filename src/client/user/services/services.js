@@ -57,8 +57,28 @@ module.exports = {
   },
 
   updateProfileService: async (userId, profileData) => {
-    // profileData can contain phone, address, and paymentMethods
+    // profileData can contain phone, address, paymentMethods, and password
     const update = {};
+    
+    // Handle password update if provided
+    if (profileData.password) {
+      // Get the current user to check existing password
+      const user = await User.findById(userId);
+      if (!user) throw new Error("User not found");
+      
+      // Check if the new password is different from the current one
+      const isSamePassword = await bcrypt.compare(profileData.password, user.password);
+      
+      // Only update if the password is different
+      if (!isSamePassword) {
+        const salt = await bcrypt.genSalt(10);
+        update.password = await bcrypt.hash(profileData.password, salt);
+      }
+      // If passwords are the same, we'll just skip the password update
+    }
+    
+    // Handle other profile updates
+    if (profileData.name) update.name = profileData.name;
     if (profileData.phone) update.phone = profileData.phone;
     if (profileData.address && typeof profileData.address === 'object') {
       update.address = {
