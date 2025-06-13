@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// Address sub-schema for structured address fields
+
 const addressSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true },
