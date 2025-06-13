@@ -78,6 +78,7 @@ module.exports = {
     }
     
     // Handle other profile updates
+    if(profileData.email) update.email = profileData.email;
     if (profileData.name) update.name = profileData.name;
     if (profileData.phone) update.phone = profileData.phone;
     if (profileData.address && typeof profileData.address === 'object') {
