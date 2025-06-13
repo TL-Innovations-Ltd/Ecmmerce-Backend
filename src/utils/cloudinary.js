@@ -2,13 +2,13 @@ const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const path = require('path');
 
-// Configure Cloudinary with environment variables
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
-
+//asdasd
 const uploadToCloudinary = async (file, folder = 'user_profile_pictures') => {
   try {
     if (!file) {

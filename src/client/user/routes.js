@@ -15,7 +15,7 @@ router.get('/profile', authUser, userController.getUserProfile);
 router.put('/profile', authUser, userController.updateProfile);
 
 // Update profile picture route (protected)
-//suzair
+
 router.put('/profile/picture', 
   authUser, 
   upload.single('profilePicture'),
