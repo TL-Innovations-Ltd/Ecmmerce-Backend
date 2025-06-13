@@ -132,6 +132,7 @@ module.exports = {
   },
 
   getUserProfileService: async (userId) => {
+    // editred 
     return await User.findById(userId).select('-password');
   },
 
