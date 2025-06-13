@@ -1,8 +1,8 @@
 const express = require('express');
-
 const router = express.Router();
 const userController = require('./controllers/controllers');
 const authUser = require('../../middleware/user_verify');
+const upload = require('../../middleware/multer');
 
 // Public routes
 router.post('/signup', userController.signup);
@@ -13,6 +13,16 @@ router.get('/profile', authUser, userController.getUserProfile);
 
 // Update profile route (protected)
 router.put('/profile', authUser, userController.updateProfile);
+
+// Update profile picture route (protected)
+router.put('/profile/picture', 
+  authUser, 
+  upload.single('profilePicture'),
+  userController.updateProfilePicture
+);
+
+// Remove profile picture route (protected)
+router.delete('/profile/picture', authUser, userController.removeProfilePicture);
 
 // Favorite products routes
 router.post('/favorites/add', authUser, userController.addFavorite);

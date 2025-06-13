@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user_model");
+const User = require('../models/user_model');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../../../utils/cloudinary');
 
 module.exports = {
   signupService: async (req) => {
@@ -21,7 +22,41 @@ module.exports = {
     return { success: true, message: "User created successfully" };
   },
 
-   updateProfileService: async (userId, profileData) => {
+  updateProfilePictureService: async (userId, file) => {
+    try {
+      // Delete old profile picture if exists
+      const user = await User.findById(userId);
+      if (user.profilePicture?.public_id) {
+        await deleteFromCloudinary(user.profilePicture.public_id);
+      }
+
+      // Upload new profile picture
+      const result = await uploadToCloudinary(file, 'user_profile_pictures');
+
+      // Update user with new profile picture
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          profilePicture: {
+            url: result.url,
+            public_id: result.public_id
+          }
+        },
+        { new: true }
+      );
+
+      return {
+        success: true,
+        message: 'Profile picture updated successfully',
+        profilePicture: updatedUser.profilePicture
+      };
+    } catch (error) {
+      console.error('Error updating profile picture:', error);
+      throw new Error('Failed to update profile picture');
+    }
+  },
+
+  updateProfileService: async (userId, profileData) => {
     // profileData can contain phone, address, and paymentMethods
     const update = {};
     if (profileData.phone) update.phone = profileData.phone;
@@ -36,6 +71,7 @@ module.exports = {
         country: profileData.address.country,
       };
     }
+
     if (Array.isArray(profileData.paymentMethods)) {
       update.paymentMethods = profileData.paymentMethods.map(pm => ({
         cardType: pm.cardType,
@@ -45,6 +81,7 @@ module.exports = {
         cvv: pm.cvv,
       }));
     }
+    
     // Notification preferences
     if (typeof profileData.emailNotification === 'boolean') update.emailNotification = profileData.emailNotification;
     if (typeof profileData.smsNotification === 'boolean') update.smsNotification = profileData.smsNotification;
@@ -94,9 +131,32 @@ module.exports = {
     return { success: true, message: "Product removed from favorites" };
   },
 
-  getUserProfileService : async (userId) => {
-    const user = await User.findById(userId).select('name email');
-    if (!user) throw new Error("User not found");
-    return user;
+  getUserProfileService: async (userId) => {
+    return await User.findById(userId).select('-password');
+  },
+
+  removeProfilePictureService: async (userId) => {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // If no profile picture exists, return early
+    if (!user.profilePicture?.public_id) {
+      return { success: true, message: 'No profile picture to remove' };
+    }
+
+    // Delete from Cloudinary
+    await deleteFromCloudinary(user.profilePicture.public_id);
+
+    // Remove from user document
+    user.profilePicture = undefined;
+    await user.save();
+
+    return { 
+      success: true, 
+      message: 'Profile picture removed successfully' 
+    };
   },
 };

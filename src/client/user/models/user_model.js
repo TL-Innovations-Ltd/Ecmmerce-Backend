@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     phone: { type: String },
     address: { type: addressSchema },
+    profilePicture: {
+      url: { type: String },
+      public_id: { type: String }
+    },
     paymentMethods: [paymentMethodSchema],
     roles: {
       type: String,
