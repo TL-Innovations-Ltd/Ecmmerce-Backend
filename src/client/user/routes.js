@@ -31,7 +31,11 @@ router.post('/favorites/add', authUser, userController.addFavorite);
 router.post('/favorites/remove', authUser, userController.removeFavorite);
 
 // Contact Us routes
-router.post('/contact' , authUser, userController.submitContactForm);
+router.post('/contact', authUser, userController.submitContactForm);
 router.get('/contact-messages', authUser, userController.getContactMessages);
+
+// Distributor Contact routes
+router.post('/distributor/contact', authUser ,  userController.submitDistributorContact);
+router.get('/distributor/contact', authUser, userController.getDistributorContacts);
 
 module.exports = router;

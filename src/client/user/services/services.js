@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require('../models/user_model');
 const Contact = require('../models/contact_model');
+const DistributorContact = require('../models/distributor_contact_model');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../../../utils/cloudinary');
 
 module.exports = {
@@ -222,6 +223,160 @@ module.exports = {
       console.error('Error fetching contact messages:', error);
       throw new Error('Failed to retrieve messages');
     }
+  },
+  
+  // Distributor Contact Services   
+  submitDistributorContactService: async (contactData) => {
+    try {
+      const newContact = new DistributorContact(contactData);
+      await newContact.save();
+      return newContact;
+    } catch (error) {
+      console.error('Error in submitDistributorContactService:', error);
+      throw new Error('Failed to submit distributor contact form');
+    }
+  } ,
+
+  getDistributorContactsService: async (filters = {}) => {
+    try {
+      const query = {};
+      
+      // Add search filters if provided
+      if (filters.search) {
+        query.$or = [
+          { name: { $regex: filters.search, $options: 'i' } },
+          { company: { $regex: filters.search, $options: 'i' } },
+          { email: { $regex: filters.search, $options: 'i' } },
+          { phoneNumber: { $regex: filters.search, $options: 'i' } }
+        ];
+      }
+      
+      // Add date range filter if provided
+      if (filters.startDate || filters.endDate) {
+        query.createdAt = {};
+        if (filters.startDate) query.createdAt.$gte = new Date(filters.startDate);
+        if (filters.endDate) {
+          const endDate = new Date(filters.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          query.createdAt.$lte = endDate;
+        }
+      }
+      
+      // Build sort options
+      const sortOptions = {};
+      if (filters.sortBy) {
+        sortOptions[filters.sortBy] = filters.sortOrder === 'desc' ? -1 : 1;
+      } else {
+        sortOptions.createdAt = -1; // Default sort by newest first
+      }
+      
+      // Execute query with pagination
+      const page = parseInt(filters.page, 10) || 1;
+      const limit = parseInt(filters.limit, 10) || 10;
+      const skip = (page - 1) * limit;
+      
+      const [contacts, total] = await Promise.all([
+        DistributorContact.find(query)
+          .sort(sortOptions)
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        DistributorContact.countDocuments(query)
+      ]);
+      
+      return {
+        data: contacts,
+        pagination: {
+          total,
+          page,
+          pages: Math.ceil(total / limit),
+          limit
+        }
+      };
+    } catch (error) {
+      console.error('Error in getDistributorContactsService:', error);
+      throw new Error('Failed to fetch distributor contacts');
+    }
+  },
+
+// Distributor Contact Services
+submitDistributorContact: async (contactData) => {
+  try {
+    const newContact = new DistributorContact(contactData);
+    await newContact.save();
+    return newContact;
+  } catch (error) {
+    console.error('Error in submitDistributorContact:', error);
+    throw new Error('Failed to submit distributor contact form');
   }
-};
-//hello
+},
+
+getDistributorContacts: async (userId) => {
+  try {
+    
+    const contacts = await DistributorContact.find({ userId : userId});
+    return contacts;
+
+    // const query = {};
+     
+    // // Add search filters if provided
+    // if (filters.search) {
+    //   query.$or = [
+    //     { name: { $regex: filters.search, $options: 'i' } },
+    //     { company: { $regex: filters.search, $options: 'i' } },
+    //     { email: { $regex: filters.search, $options: 'i' } },
+    //     { phoneNumber: { $regex: filters.search, $options: 'i' } }
+    //   ];
+    // }
+    
+    // // Add date range filter if provided
+    // if (filters.startDate || filters.endDate) {
+    //   query.createdAt = {};
+    //   if (filters.startDate) query.createdAt.$gte = new Date(filters.startDate);
+    //   if (filters.endDate) {
+    //     const endDate = new Date(filters.endDate);
+    //     endDate.setHours(23, 59, 59, 999);
+    //     query.createdAt.$lte = endDate;
+    //   }
+    // }
+    
+    // // Build sort options
+    // const sortOptions = {};
+    // if (filters.sortBy) {
+    //   sortOptions[filters.sortBy] = filters.sortOrder === 'desc' ? -1 : 1;
+    // } else {
+    //   sortOptions.createdAt = -1; // Default sort by newest first
+    // }
+    
+    // // Execute query with pagination
+    // const page = parseInt(filters.page, 10) || 1;
+    // const limit = parseInt(filters.limit, 10) || 10;
+    // const skip = (page - 1) * limit;
+    
+    // const [contacts, total] = await Promise.all([
+    //   DistributorContact.find(query)
+    //     .sort(sortOptions)
+    //     .skip(skip)
+    //     .limit(limit)
+    //     .lean(),
+    //   DistributorContact.countDocuments(query)
+    // ]);
+
+
+    
+    // return {
+    //   data: contacts,
+    //   pagination: {
+    //     total,
+    //     page,
+    //     pages: Math.ceil(total / limit),
+    //     limit
+    //   }
+    // };
+  } catch (error) {
+    console.error('Error in getDistributorContacts:', error);
+    throw new Error('Failed to fetch distributor contacts');
+  }
+}
+
+}

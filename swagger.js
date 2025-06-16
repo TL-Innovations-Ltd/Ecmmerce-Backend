@@ -18,6 +18,7 @@ const options = {
   apis: [
     "./src/admin/products/docs/swagger_docs.js",
     "./src/client/user/docs/swagger_docs.js",
+    "./src/client/user/docs/distributor_contact_swagger.js",
     "./src/client/cart/docs/swagger_docs.js",
     "./src/admin/category/docs/swagger_docs.js",
     "./src/client/order/docs/swagger_docs.js",

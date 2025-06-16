@@ -8,7 +8,9 @@ const {
   updateProfilePictureService,
   removeProfilePictureService,
   submitContactFormService,
-  getContactMessagesService
+  getContactMessagesService,
+  submitDistributorContact,
+  getDistributorContacts	
 } = require("../services/services");
 //hello
 module.exports = {
@@ -139,15 +141,15 @@ module.exports = {
   getContactMessages: async (req, res) => {
     try {
       // const { startDate, endDate, search } = req.query;
-      
+
       // const filters = {};
       // if (startDate) filters.startDate = startDate;
       // if (endDate) filters.endDate = endDate;
       // if (search) filters.search = search;
       const filters = req.user;
-      
+
       const messages = await getContactMessagesService(filters);
-      
+
       res.status(200).json({
         success: true,
         count: messages.length,
@@ -155,10 +157,101 @@ module.exports = {
       });
     } catch (error) {
       console.error('Error in getContactMessages:', error);
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         message: error.message || 'Failed to fetch contact messages' 
       });
     }
-  }
+  },
+   
+
+  // Submit distributor contact form (public endpoint)
+  submitDistributorContact: async (req, res) => {
+    try {
+      const {
+        name,
+        company,
+        contactName,
+        title,
+        email,
+        phoneNumber,
+        country,
+        experience,
+        message,
+        privacyPolicy
+      } = req.body;
+
+      const { userId } = req.user;
+
+      const contactData = {
+        userId,
+        name,
+        company,
+        contactName,
+        title,
+        email,
+        phoneNumber,
+        country,
+        experience,
+        message,
+        privacyPolicy
+      };
+
+      const result = await submitDistributorContact(contactData);
+      
+      res.status(201).json({
+        success: true,
+        message: 'Distributor contact form submitted successfully',
+        data: result
+      });
+    } catch (error) {
+      console.error('Error in submitDistributorContact:', error);
+      res.status(400).json({
+        success: false,
+        message: error.message || 'Failed to submit distributor contact form',
+        error: error.message
+      });
+    }
+  },
+
+  // Get all distributor contacts (admin only)
+  getDistributorContacts: async (req, res) => {
+    try {
+      // Check if user is admin
+      if (!req.user) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Admin privileges required.'
+        });
+      }
+     
+      const {userId} = req.user;
+      // const { search, startDate, endDate, sortBy, sortOrder, page = 1, limit = 10 } = req.query;
+      
+      // const filters = {
+      //   ...(search && { search }),
+      //   ...(startDate && { startDate }),
+      //   ...(endDate && { endDate }),
+      //   ...(sortBy && { sortBy }),
+      //   ...(sortOrder && { sortOrder }),
+      //   page: parseInt(page),
+      //   limit: parseInt(limit)
+      // };
+
+      const result = await getDistributorContacts(userId);
+      
+      res.status(200).json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Error in getDistributorContacts:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to fetch distributor contacts',
+        error: error.message
+      });
+    }
+  },
+
 };
