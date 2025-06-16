@@ -1,9 +1,4 @@
 /**
- * @swagger
- * tags:
- *   name: Products
- *   description: Product management and CRUD operations
- */
 
 /**
  * @swagger
@@ -276,6 +271,44 @@
  * @swagger
  * components:
  *   schemas:
+ *     LightConfig:
+ *       type: object
+ *       required:
+ *         - name
+ *         - config
+ *         - user_id
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "Living Room Light"
+ *           description: Name of the light configuration
+ *         thumbnail:
+ *           type: object
+ *           properties:
+ *             url:
+ *               type: string
+ *               format: uri
+ *               example: "https://example.com/images/light1.jpg"
+ *             public_id:
+ *               type: string
+ *               example: "light1_thumbnail"
+ *         config:
+ *           type: object
+ *           description: Configuration object for the light
+ *           example:
+ *             brightness: 80
+ *             color: "#FF5733"
+ *             mode: "warm"
+ *         iframe:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Array of iframe URLs
+ *           example: ["<iframe1>", "<iframe2>"]
+ *         user_id:
+ *           type: string
+ *           format: uuid
+ *           example: "60d21b4667d0d8992e610c85"
  *     Product:
  *       type: object
  *       properties:
@@ -318,3 +351,5 @@
  *           type: string
  *           format: date-time
  */
+
+

@@ -1,8 +1,120 @@
 /**
  * @swagger
  * tags:
- *   name: Slideshows
- *   description: Slideshow management operations
+ *   - name: Slideshows
+ *     description: Slideshow management operations
+ *   - name: Media
+ *     description: Media upload and management operations
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Slideshow:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         customerId:
+ *           type: string
+ *         title:
+ *           type: string
+ *         subtitle:
+ *           type: string
+ *         slides:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Slide'
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *     Slide:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         layout:
+ *           type: string
+ *         media:
+ *           $ref: '#/components/schemas/Media'
+ *         text:
+ *           $ref: '#/components/schemas/TextContent'
+ *         appearance:
+ *           $ref: '#/components/schemas/Appearance'
+ *         meta:
+ *           $ref: '#/components/schemas/Meta'
+ *     Media:
+ *       type: object
+ *       properties:
+ *         type:
+ *           type: string
+ *           enum: [image, video]
+ *         urls:
+ *           type: array
+ *           items:
+ *             type: string
+ *         position:
+ *           type: string
+ *     TextContent:
+ *       type: object
+ *       properties:
+ *         heading:
+ *           type: string
+ *         subheading:
+ *           type: string
+ *         description:
+ *           type: string
+ *         bullets:
+ *           type: array
+ *           items:
+ *             type: string
+ *         alignment:
+ *           type: string
+ *         verticalPosition:
+ *           type: string
+ *         showHeading:
+ *           type: boolean
+ *         showSubheading:
+ *           type: boolean
+ *         showDescription:
+ *           type: boolean
+ *         showBullets:
+ *           type: boolean
+ *     Appearance:
+ *       type: object
+ *       properties:
+ *         theme:
+ *           type: string
+ *         backgroundColor:
+ *           type: string
+ *         overlayDarken:
+ *           type: boolean
+ *         padding:
+ *           type: string
+ *     Meta:
+ *       type: object
+ *       properties:
+ *         index:
+ *           type: number
+ *         status:
+ *           type: string
+ *     MediaUploadResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *         urls:
+ *           type: array
+ *           items:
+ *             type: string
+ *         public_ids:
+ *           type: array
+ *           items:
+ *             type: string
  */
 
 /**
@@ -17,7 +129,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/SlideshowInput'
+ *             $ref: '#/components/schemas/Slideshow'
  *           example:
  *             customerId: customer123
  *             title: LIMI Lighting Solutions
@@ -27,7 +139,7 @@
  *                 layout: media-text-split
  *                 media:
  *                   type: video
- *                   urls: [/videos/limi_intro.mp4]
+ *                   urls: ["https://res.cloudinary.com/demo/video/upload/sample.mp4"]
  *                   position: left
  *                 text:
  *                   heading: Smart Living
@@ -57,7 +169,16 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SlideshowResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Slideshow saved successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Slideshow'
  *       500:
  *         description: Server error
  *         content:
@@ -93,7 +214,13 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SlideshowResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Slideshow'
  *       404:
  *         description: Slideshow not found
  *         content:
@@ -134,17 +261,6 @@
  *                   example: Slideshow deleted successfully
  *       500:
  *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error deleting slideshow
  */
 
 /**
@@ -175,133 +291,98 @@
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/SlideshowResponse'
+ *                     $ref: '#/components/schemas/Slideshow'
  *       500:
  *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error retrieving slideshows
  */
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     SlideshowInput:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *           description: Optional ID for updating existing slideshow
- *         customerId:
- *           type: string
- *           required: true
- *         title:
- *           type: string
- *           required: true
- *         subtitle:
- *           type: string
- *         slides:
- *           type: array
- *           items:
+ * /admin/slide/upload-media:
+ *   post:
+ *     summary: Upload media files to Cloudinary
+ *     description: Upload one or more media files (images/videos) to Cloudinary storage
+ *     tags: [Media]
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
  *             type: object
  *             properties:
- *               id:
- *                 type: string
- *                 required: true
- *               layout:
- *                 type: string
- *                 required: true
  *               media:
- *                 type: object
- *                 properties:
- *                   type:
- *                     type: string
- *                   urls:
- *                     type: array
- *                     items:
- *                       type: string
- *                   position:
- *                     type: string
- *               text:
- *                 type: object
- *                 properties:
- *                   heading:
- *                     type: string
- *                   subheading:
- *                     type: string
- *                   description:
- *                     type: string
- *                   bullets:
- *                     type: array
- *                     items:
- *                       type: string
- *                   alignment:
- *                     type: string
- *                   verticalPosition:
- *                     type: string
- *                   showHeading:
- *                     type: boolean
- *                   showSubheading:
- *                     type: boolean
- *                   showDescription:
- *                     type: boolean
- *                   showBullets:
- *                     type: boolean
- *               appearance:
- *                 type: object
- *                 properties:
- *                   theme:
- *                     type: string
- *                   backgroundColor:
- *                     type: string
- *                   overlayDarken:
- *                     type: boolean
- *                   padding:
- *                     type: string
- *               meta:
- *                 type: object
- *                 properties:
- *                   index:
- *                     type: number
- *                   status:
- *                     type: string
- *     SlideshowResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: true
- *         message:
- *           type: string
- *           example: Slideshow saved successfully
- *         data:
- *           type: object
- *           properties:
- *             _id:
- *               type: string
- *             customerId:
- *               type: string
- *             title:
- *               type: string
- *             subtitle:
- *               type: string
- *             createdAt:
- *               type: string
- *               format: date-time
- *             updatedAt:
- *               type: string
- *               format: date-time
- *             slides:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Media uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MediaUploadResponse'
+ *       400:
+ *         description: No files were uploaded or invalid file type
+ *       500:
+ *         description: Error uploading media
+ */
+
+/**
+ * @swagger
+ * /admin/slide/slideshows_images:
+ *   get:
+ *     summary: Get all slideshow images
+ *     description: Retrieve a list of all images used in slideshows
+ *     tags: [Media]
+ *     responses:
+ *       200:
+ *         description: List of slideshow images
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/SlideshowInput/properties/slides/items'
+ *                 type: string
+ *                 format: uri
+ */
+
+/**
+ * @swagger
+ * /admin/slide/limi_bussiness_card_images:
+ *   get:
+ *     summary: Get limited business card images
+ *     description: Retrieve a limited set of business card images
+ *     tags: [Media]
+ *     responses:
+ *       200:
+ *         description: List of business card images
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 format: uri
+ */
+
+/**
+ * @swagger
+ * /admin/slide/products_images:
+ *   get:
+ *     summary: Get all product images
+ *     description: Retrieve a list of all product images
+ *     tags: [Media]
+ *     responses:
+ *       200:
+ *         description: List of product images
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 format: uri
  */
