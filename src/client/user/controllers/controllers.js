@@ -6,7 +6,9 @@ const {
   getUserProfileService, 
   updateProfileService,
   updateProfilePictureService,
-  removeProfilePictureService 
+  removeProfilePictureService,
+  submitContactFormService,
+  getContactMessagesService
 } = require("../services/services");
 //hello
 module.exports = {
@@ -114,4 +116,49 @@ module.exports = {
     }
   },
 
+  // Submit contact form
+  submitContactForm: async (req, res) => {
+    try {
+      const { userId } = req.user;
+  
+      const { name, email, subject, message } = req.body;
+      
+      const result = await submitContactFormService({userId,name,email,subject,message});
+      
+      res.status(201).json(result);
+    } catch (error) {
+      console.error('Error in submitContactForm:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || 'Failed to submit contact form' 
+      });
+    }
+  },
+
+  // Get contact messages (protected route - admin only)
+  getContactMessages: async (req, res) => {
+    try {
+      // const { startDate, endDate, search } = req.query;
+      
+      // const filters = {};
+      // if (startDate) filters.startDate = startDate;
+      // if (endDate) filters.endDate = endDate;
+      // if (search) filters.search = search;
+      const filters = req.user;
+      
+      const messages = await getContactMessagesService(filters);
+      
+      res.status(200).json({
+        success: true,
+        count: messages.length,
+        data: messages
+      });
+    } catch (error) {
+      console.error('Error in getContactMessages:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || 'Failed to fetch contact messages' 
+      });
+    }
+  }
 };

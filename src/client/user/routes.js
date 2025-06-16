@@ -4,6 +4,7 @@ const userController = require('./controllers/controllers');
 const authUser = require('../../middleware/user_verify');
 const upload = require('../../middleware/multer');
 
+
 // Public routes
 router.post('/signup', userController.signup);
 router.post('/login', userController.login);
@@ -28,5 +29,9 @@ router.delete('/profile/picture', authUser, userController.removeProfilePicture)
 // Favorite products routes
 router.post('/favorites/add', authUser, userController.addFavorite);
 router.post('/favorites/remove', authUser, userController.removeFavorite);
+
+// Contact Us routes
+router.post('/contact' , authUser, userController.submitContactForm);
+router.get('/contact-messages', authUser, userController.getContactMessages);
 
 module.exports = router;

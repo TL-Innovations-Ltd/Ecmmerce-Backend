@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require('../models/user_model');
+const Contact = require('../models/contact_model');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../../../utils/cloudinary');
 
 module.exports = {
@@ -181,5 +182,46 @@ module.exports = {
       message: 'Profile picture removed successfully' 
     };
   },
+
+  // Contact Us services
+  submitContactFormService: async (contactData) => {
+    try {
+      const { userId, name, email, subject, message } = contactData;
+      
+      const newContact = new Contact({
+        userId,
+        name,
+        email,
+        subject,
+        message
+      });
+      
+      await newContact.save();
+      return newContact;
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      throw new Error('Failed to save your message. Please try again.');
+    }
+  },
+  
+  getContactMessagesService: async (filters = {}) => {
+    try {
+      const { userId } = filters;
+      
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      
+      // Only fetch messages for the specified user
+      const messages = await Contact.find({ userId })
+        .sort({ createdAt: -1 })
+        .lean();
+      
+      return messages;
+    } catch (error) {
+      console.error('Error fetching contact messages:', error);
+      throw new Error('Failed to retrieve messages');
+    }
+  }
 };
 //hello
