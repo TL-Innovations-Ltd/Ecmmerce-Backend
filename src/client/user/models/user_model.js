@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-
+// ----- Address Schema -----
 const addressSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true },
@@ -11,10 +11,10 @@ const addressSchema = new mongoose.Schema(
     postalCode: { type: String, required: true },
     country: { type: String, required: true },
   },
-  { _id: false },
+  { _id: false }
 );
 
-// Payment method sub-schema
+// ----- Payment Method Schema -----
 const paymentMethodSchema = new mongoose.Schema(
   {
     cardType: { type: String, required: true },
@@ -23,32 +23,48 @@ const paymentMethodSchema = new mongoose.Schema(
     expiryDate: { type: String, required: true },
     cvv: { type: String, required: true },
   },
-  { _id: false },
+  { _id: false }
 );
 
+// ----- User Schema -----
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    // Shared/unique fields
+    username: { type: String }, // Optional, from website
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String }, // Only required in app, website may not use it
     phone: { type: String },
+
+    // App-specific
     address: { type: addressSchema },
-    profilePicture: {
-      url: { type: String },
-      public_id: { type: String }
-    },
     paymentMethods: [paymentMethodSchema],
-    roles: {
-      type: String,
-      default: "user",
-      enum: ["user", "superadmin", "managers", "wholesaler"],
-    },
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     emailNotification: { type: Boolean, default: true },
     smsNotification: { type: Boolean, default: false },
     appNotification: { type: Boolean, default: true },
+
+    // Website-specific
+    ip: { type: String },
+    region: { type: String },
+    otp: { type: String },
+    otp_expire_at: { type: Date },
+    installer_expire_at: { type: Date, default: null },
+    production_email_status: { type: Boolean },
+    members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+    // Common
+    roles: {
+      type: String,
+      enum: ["user", "superadmin", "managers", "wholesaler", "installer", "member", "production"],
+      default: "user",
+    },
+
+    profilePicture: {
+      url: { type: String, default: "" },
+      public_id: { type: String, default: "" },
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("User", userSchema);

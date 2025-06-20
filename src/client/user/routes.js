@@ -6,25 +6,25 @@ const upload = require('../../middleware/multer');
 
 
 // Public routes
-router.post('/signup', userController.signup);
-router.post('/login', userController.login);
+// router.post('/signup', userController.signup);
+// router.post('/login', userController.login);
 
-// Example of a protected route
-router.get('/profile', authUser, userController.getUserProfile);
+// // Example of a protected route
+router.get('/profile', authUser, userController.getUserProfile);   // checked
 
 // Update profile route (protected)
-router.put('/profile', authUser, userController.updateProfile);
+router.put('/profile', authUser, userController.updateProfile);  
 
 // Update profile picture route (protected)
 
-router.put('/profile/picture', 
+router.put('/profile/picture',    // checked
   authUser, 
   upload.single('profilePicture'),
   userController.updateProfilePicture
 );
 
 // Remove profile picture route (protected)
-router.delete('/profile/picture', authUser, userController.removeProfilePicture);
+router.delete('/profile/picture', authUser, userController.removeProfilePicture);  //checked
 
 // Favorite products routes
 router.post('/favorites/add', authUser, userController.addFavorite);

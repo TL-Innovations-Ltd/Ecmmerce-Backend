@@ -1,6 +1,6 @@
 const { 
-  signupService, 
-  loginService, 
+  // signupService, 
+  // loginService, 
   addFavoriteService, 
   removeFavoriteService, 
   getUserProfileService, 
@@ -14,27 +14,27 @@ const {
 } = require("../services/services");
 //hello
 module.exports = {
-  signup: async (req, res) => {
-    try {
-      const result = await signupService(req);
-      res.status(201).json(result);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
-    }
-  },
+  // signup: async (req, res) => {
+  //   try {
+  //     const result = await signupService(req);
+  //     res.status(201).json(result);
+  //   } catch (err) {
+  //     res.status(400).json({ message: err.message });
+  //   }
+  // },
 
-  login: async (req, res) => {
-    try {
-      const result = await loginService(req);
-      res.json(result);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
-    }
-  },
+  // login: async (req, res) => {
+  //   try {
+  //     const result = await loginService(req);
+  //     res.json(result);
+  //   } catch (err) {
+  //     res.status(400).json({ message: err.message });
+  //   }
+  // },
 
   addFavorite: async (req, res) => {
     try {
-      const { userId } = req.user;
+      const userId  = req.user._id;
       const { productId } = req.body;
       if (!productId) {
         return res.status(400).json({ message: "Product ID is required" });
@@ -48,7 +48,7 @@ module.exports = {
 
   removeFavorite: async (req, res) => {
     try {
-      const { userId } = req.user;
+      const userId  = req.user._id;
       const { productId } = req.body;
       if (!productId) {
         return res.status(400).json({ message: "Product ID is required" });
@@ -62,8 +62,9 @@ module.exports = {
 
   updateProfile: async (req, res) => {
     try {
-      const { userId } = req.user;
+      const  userId  = req.user._id;
       const profileData = req.body;
+      console.log(profileData);
       const result = await updateProfileService(userId, profileData);
       res.json(result);
     } catch (err) {
@@ -74,7 +75,7 @@ module.exports = {
   updateProfilePicture: async (req, res) => {
     //hello
     try {
-      const { userId } = req.user;
+      const userId  = req.user._id;
       
       if (!req.file) {
         return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -93,7 +94,7 @@ module.exports = {
 
   removeProfilePicture: async (req, res) => {
     try {
-      const { userId } = req.user;
+      const userId  = req.user._id;
       const result = await removeProfilePictureService(userId);
       res.json(result);
     } catch (err) {
@@ -108,7 +109,7 @@ module.exports = {
   // Get user profile
   getUserProfile: async (req, res) => {
     try {
-      const user = await getUserProfileService(req.user.userId);
+      const user = await getUserProfileService(req.user._id);
       res.json({
         success: true,
         data: user
@@ -121,7 +122,7 @@ module.exports = {
   // Submit contact form
   submitContactForm: async (req, res) => {
     try {
-      const { userId } = req.user;
+      const userId  = req.user._id;
   
       const { name, email, subject, message } = req.body;
       
@@ -146,7 +147,7 @@ module.exports = {
       // if (startDate) filters.startDate = startDate;
       // if (endDate) filters.endDate = endDate;
       // if (search) filters.search = search;
-      const filters = req.user;
+      const filters = req.user._id;
 
       const messages = await getContactMessagesService(filters);
 
@@ -181,7 +182,7 @@ module.exports = {
         privacyPolicy
       } = req.body;
 
-      const { userId } = req.user;
+      const userId  = req.user._id;
 
       const contactData = {
         userId,
@@ -225,7 +226,7 @@ module.exports = {
         });
       }
      
-      const {userId} = req.user;
+      const userId  = req.user._id;
       // const { search, startDate, endDate, sortBy, sortOrder, page = 1, limit = 10 } = req.query;
       
       // const filters = {

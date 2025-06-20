@@ -6,31 +6,32 @@ const DistributorContact = require('../models/distributor_contact_model');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../../../utils/cloudinary');
 
 module.exports = {
-  signupService: async (req) => {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      throw new Error("All fields are required");
-    }
-    const existingUser = await User.findOne({ email });
-    if (existingUser) throw new Error("User already exists");
+  // signupService: async (req) => {
+  //   const { name, email, password } = req.body;
+  //   if (!name || !email || !password) {
+  //     throw new Error("All fields are required");
+  //   }
+  //   const existingUser = await User.findOne({ email });
+  //   if (existingUser) throw new Error("User already exists");
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
-    await user.save();
-    return { success: true, message: "User created successfully" };
-  },
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+  //   const user = new User({
+  //     name,
+  //     email,
+  //     password: hashedPassword,
+  //   });
+  //   await user.save();
+  //   return { success: true, message: "User created successfully" };
+  // },
 
   updateProfilePictureService: async (userId, file) => {
     try {
-      // Delete old profile picture if exists
-      const user = await User.findById(userId);
+    // Delete old profile picture if exists
+     const user = await User.findById(userId);
+     console.log(user);
       if (user.profilePicture?.public_id) {
-        await deleteFromCloudinary(user.profilePicture.public_id);
-      }
+      await deleteFromCloudinary(user.profilePicture.public_id);
+      } 
 //sdsdf
       // Upload new profile picture
       const result = await uploadToCloudinary(file, 'user_profile_pictures');
@@ -81,7 +82,7 @@ module.exports = {
     
     // Handle other profile updates
     if(profileData.email) update.email = profileData.email;
-    if (profileData.name) update.name = profileData.name;
+    if (profileData.username) update.username = profileData.username;
     if (profileData.phone) update.phone = profileData.phone;
     if (profileData.address && typeof profileData.address === 'object') {
       update.address = {
@@ -114,22 +115,22 @@ module.exports = {
     return { success: true, message: "Profile updated successfully" };
   },
 
-  loginService: async (req) => {
-    const { email, password } = req.body;
-    if ((!email, !password)) {
-      throw new Error("All fields are required");
-    }
-    const user = await User.findOne({ email });
-    if (!user) throw new Error("Invalid credentials");
+  // loginService: async (req) => {
+  //   const { email, password } = req.body;
+  //   if ((!email, !password)) {
+  //     throw new Error("All fields are required");
+  //   }
+  //   const user = await User.findOne({ email });
+  //   if (!user) throw new Error("Invalid credentials");
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("Invalid credentials");
+  //   const isMatch = await bcrypt.compare(password, user.password);
+  //   if (!isMatch) throw new Error("Invalid credentials");
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-    return { success: true, token };
-  },
+  //   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+  //     expiresIn: "7d",
+  //   });
+  //   return { success: true, token };
+  // },
 
   // Add to favorites
   addFavoriteService: async (userId, productId) => {
@@ -205,9 +206,8 @@ module.exports = {
     }
   },
   
-  getContactMessagesService: async (filters = {}) => {
+  getContactMessagesService: async (userId) => {
     try {
-      const { userId } = filters;
       
       if (!userId) {
         throw new Error('User ID is required');
@@ -225,80 +225,6 @@ module.exports = {
     }
   },
   
-  // Distributor Contact Services   
-  submitDistributorContactService: async (contactData) => {
-    try {
-      const newContact = new DistributorContact(contactData);
-      await newContact.save();
-      return newContact;
-    } catch (error) {
-      console.error('Error in submitDistributorContactService:', error);
-      throw new Error('Failed to submit distributor contact form');
-    }
-  } ,
-
-  getDistributorContactsService: async (filters = {}) => {
-    try {
-      const query = {};
-      
-      // Add search filters if provided
-      if (filters.search) {
-        query.$or = [
-          { name: { $regex: filters.search, $options: 'i' } },
-          { company: { $regex: filters.search, $options: 'i' } },
-          { email: { $regex: filters.search, $options: 'i' } },
-          { phoneNumber: { $regex: filters.search, $options: 'i' } }
-        ];
-      }
-      
-      // Add date range filter if provided
-      if (filters.startDate || filters.endDate) {
-        query.createdAt = {};
-        if (filters.startDate) query.createdAt.$gte = new Date(filters.startDate);
-        if (filters.endDate) {
-          const endDate = new Date(filters.endDate);
-          endDate.setHours(23, 59, 59, 999);
-          query.createdAt.$lte = endDate;
-        }
-      }
-      
-      // Build sort options
-      const sortOptions = {};
-      if (filters.sortBy) {
-        sortOptions[filters.sortBy] = filters.sortOrder === 'desc' ? -1 : 1;
-      } else {
-        sortOptions.createdAt = -1; // Default sort by newest first
-      }
-      
-      // Execute query with pagination
-      const page = parseInt(filters.page, 10) || 1;
-      const limit = parseInt(filters.limit, 10) || 10;
-      const skip = (page - 1) * limit;
-      
-      const [contacts, total] = await Promise.all([
-        DistributorContact.find(query)
-          .sort(sortOptions)
-          .skip(skip)
-          .limit(limit)
-          .lean(),
-        DistributorContact.countDocuments(query)
-      ]);
-      
-      return {
-        data: contacts,
-        pagination: {
-          total,
-          page,
-          pages: Math.ceil(total / limit),
-          limit
-        }
-      };
-    } catch (error) {
-      console.error('Error in getDistributorContactsService:', error);
-      throw new Error('Failed to fetch distributor contacts');
-    }
-  },
-
 // Distributor Contact Services
 submitDistributorContact: async (contactData) => {
   try {
