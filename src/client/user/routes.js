@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('./controllers/controllers');
-const authUser = require('../../middleware/user_verify');
-const upload = require('../../middleware/multer');
+const communityController = require('./controllers/community_controller');
+const authUser = require('../../../src/middleware/user_verify');
+const upload = require('../../../src/middleware/multer');
 
 
 // Public routes
@@ -35,7 +36,11 @@ router.post('/contact', authUser, userController.submitContactForm);
 router.get('/contact-messages', authUser, userController.getContactMessages);
 
 // Distributor Contact routes
-router.post('/distributor/contact', authUser ,  userController.submitDistributorContact);
+router.post('/distributor/contact', authUser, userController.submitDistributorContact);
 router.get('/distributor/contact', authUser, userController.getDistributorContacts);
+
+// Community Subscription routes
+router.post('/community/subscribe', communityController.subscribeToCommunity);
+router.get('/community/subscriptions', communityController.getCommunitySubscriptions);
 
 module.exports = router;
