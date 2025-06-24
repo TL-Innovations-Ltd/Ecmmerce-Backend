@@ -24,6 +24,7 @@ const options = {
     "./src/client/order/docs/swagger_docs.js",
     "./src/admin/slides_show/docs/swagger_docs.js",
     "./src/admin/products/docs/light_config_swagger.js",
+    "./src/client/user/docs/distributorCommunity.docs.js",
   ], // path where your route files are
 };
 
