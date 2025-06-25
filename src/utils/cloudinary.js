@@ -9,56 +9,86 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 //asdasd
-const uploadToCloudinary = async (file, folder = 'user_profile_pictures') => {
-  try {
-    if (!file) {
-      throw new Error('No file provided');
-    }
 
-    // Create folder if it doesn't exist
-    const uploadDir = path.dirname(file.path);
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Upload file to Cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: folder,
-      resource_type: 'auto',
-    });
-
-    // Delete the temporary file
-    fs.unlinkSync(file.path);
-
-    return {
-      url: result.secure_url,
-      public_id: result.public_id
-    };
-  } catch (error) {
-    // Clean up the temporary file if it exists
-    if (file?.path && fs.existsSync(file.path)) {
-      fs.unlinkSync(file.path);
-    }
-    console.error('Error uploading to Cloudinary:', error);
-    throw error;
-  }
+const uploadToCloudinary = (buffer, folder = 'profile_pictures') => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: folder,
+        resource_type: 'auto'
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    
+    uploadStream.end(buffer);
+  });
 };
 
 const deleteFromCloudinary = async (publicId) => {
+  if (!publicId) return;
   try {
-    if (!publicId) return;
-    
-    // Extract the public ID without the folder path
-    const publicIdWithoutFolder = publicId.split('/').pop().split('.')[0];
-    await cloudinary.uploader.destroy(publicIdWithoutFolder, {
+    await cloudinary.uploader.destroy(publicId, {
       resource_type: 'image',
       invalidate: true
     });
   } catch (error) {
     console.error('Error deleting from Cloudinary:', error);
-    throw error;
   }
 };
+
+// const uploadToCloudinary = async (file, folder = 'user_profile_pictures') => {
+//   try {
+//     if (!file) {
+//       throw new Error('No file provided');
+//     }
+
+//     // Create folder if it doesn't exist
+//     const uploadDir = path.dirname(file.path);
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir, { recursive: true });
+//     }
+
+//     // Upload file to Cloudinary
+//     const result = await cloudinary.uploader.upload(file.path, {
+//       folder: folder,
+//       resource_type: 'auto',
+//     });
+
+//     // Delete the temporary file
+//     fs.unlinkSync(file.path);
+
+//     return {
+//       url: result.secure_url,
+//       public_id: result.public_id
+//     };
+//   } catch (error) {
+//     // Clean up the temporary file if it exists
+//     if (file?.path && fs.existsSync(file.path)) {
+//       fs.unlinkSync(file.path);
+//     }
+//     console.error('Error uploading to Cloudinary:', error);
+//     throw error;
+//   }
+// };
+
+// const deleteFromCloudinary = async (publicId) => {
+//   try {
+//     if (!publicId) return;
+    
+//     // Extract the public ID without the folder path
+//     const publicIdWithoutFolder = publicId.split('/').pop().split('.')[0];
+//     await cloudinary.uploader.destroy(publicIdWithoutFolder, {
+//       resource_type: 'image',
+//       invalidate: true
+//     });
+//   } catch (error) {
+//     console.error('Error deleting from Cloudinary:', error);
+//     throw error;
+//   }
+// };
 
 module.exports = {
   uploadToCloudinary,

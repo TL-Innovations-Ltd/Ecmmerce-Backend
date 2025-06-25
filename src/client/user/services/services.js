@@ -26,26 +26,26 @@ module.exports = {
 
   updateProfilePictureService: async (userId, file) => {
     try {
-    // Delete old profile picture if exists
-     const user = await User.findById(userId);
-     console.log(user);
-      if (user.profilePicture?.public_id) {
-      await deleteFromCloudinary(user.profilePicture.public_id);
-      } 
-//sdsdf
-      // Upload new profile picture
-      const result = await uploadToCloudinary(file, 'user_profile_pictures');
+       // Start both operations in parallel
+       const [user, uploadResult] = await Promise.all([
+        User.findById(userId).select('profilePicture').lean(),
+        uploadToCloudinary(file.buffer, 'profile_pictures')
+      ]);
 
-      // Update user with new profile picture
+      // Delete old picture in background (don't wait for it)
+      if (user?.profilePicture?.public_id) {
+        deleteFromCloudinary(user.profilePicture.public_id)
+          .catch(err => console.error('Background delete error:', err));
+      }
+
+      // Update user with new picture
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
-          profilePicture: {
-            url: result.url,
-            public_id: result.public_id
-          }
+          'profilePicture.url': uploadResult.secure_url,
+          'profilePicture.public_id': uploadResult.public_id
         },
-        { new: true }
+        { new: true, select: 'profilePicture' }
       );
 
       return {
