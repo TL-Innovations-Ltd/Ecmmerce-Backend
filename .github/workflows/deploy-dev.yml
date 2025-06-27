@@ -15,10 +15,10 @@ jobs:
       - name: Run deployment script on Dev VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.VPS_ECOM_DEV_HOST }}
-          username: ${{ secrets.VPS_ECOM_DEV_USER }}
-          key: ${{ secrets.VPS_ECOM_DEV_SSH_KEY }}
-          port: ${{ secrets.VPS_ECOM_DEV_PORT }}
+          host: ${{ secrets.VPS_ECOM_HOST }}
+          username: ${{ secrets.VPS_ECOM_USER }}
+          key: ${{ secrets.VPS_ECOM_SSH_KEY }}
+          port: ${{ secrets.VPS_ECOM_PORT }}
           script: |
             cd /var/www/ecmmerce-backend-dev/Ecmmerce-Backend
             chmod +x ./.scripts/deploy-dev.sh
