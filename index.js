@@ -1,3 +1,8 @@
+
+const envPath = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env';
+console.log(`🔧 Loading environment from: ${envPath} `);
+require('dotenv').config({ path: envPath });
+
 const express = require("express");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
@@ -9,7 +14,6 @@ const categoryRoutes = require("./src/admin/category/routes");
 const orderRoutes = require("./src/client/order/routes");
 const slideshowsRoutes = require("./src/admin/slides_show/routes");
 const swaggerSpec = require("./swagger");
-require("dotenv").config();
 
 const app = express();
 

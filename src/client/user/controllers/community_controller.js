@@ -1,7 +1,6 @@
 
 const CommunitySubscription = require('../models/community.model');
 const transporter = require('../../../utils/gmail_transport');
-require('dotenv').config();
 
 // Email templates
 const emailTemplates = {
