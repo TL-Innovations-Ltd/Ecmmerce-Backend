@@ -3,6 +3,8 @@ const envPath = process.env.NODE_ENV === 'development' ? '.env.dev' : '.env';
 console.log(`🔧 Loading environment from: ${envPath} `);
 require('dotenv').config({ path: envPath });
 
+// Suzair Testing  Dev CI CD
+
 const express = require("express");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
