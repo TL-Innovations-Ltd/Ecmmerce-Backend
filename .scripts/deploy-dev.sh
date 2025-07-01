@@ -20,4 +20,4 @@ npm install
 
 # Restart PM2 process (custom name)
 echo "Restarting dev PM2 app..."
-pm2 restart ecommerce-dev || pm2 start index.js --name ecommerce-dev
+pm2 restart ecommerce-dev
