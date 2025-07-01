@@ -15,7 +15,6 @@ const envPath = getCurrentBranch() === 'dev' ? '.env.dev' : '.env';
 console.log(`🔧 Loading environment from: ${envPath === '.env.dev' ? 'development' : 'production'} `);
 require('dotenv').config({ path: envPath });
 
-// Suzair Testing  Dev CI CD again
 
 const express = require("express");
 const cors = require("cors");
