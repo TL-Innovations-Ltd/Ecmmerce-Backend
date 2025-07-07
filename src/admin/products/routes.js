@@ -55,7 +55,6 @@ const upload = multer({
   }
 });
 
-
 // Light Configuration Routes
 router.post("/light-configs", validateConfig, lightConfigController.createConfig);
 router.get("/light-configs/:id", validateIdParam, lightConfigController.getConfig);
