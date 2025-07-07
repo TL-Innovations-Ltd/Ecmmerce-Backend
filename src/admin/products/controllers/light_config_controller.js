@@ -30,12 +30,24 @@ class LightConfigController {
   async getConfig(req, res) {
     try {
       const { id } = req.params;
+      const { filter } = req.query;
       const config = await lightConfigService.getConfigById(id);
       
       if (!config) {
         return res.status(404).json({ message: 'Configuration not found' });
       }
       
+      // If filter=true is in query, only return light_type and name
+      if (filter === 'true') {
+        const filteredResponse = {
+          name: config?.name,
+          light_type: config?.config?.light_type,
+          donwload_Id : config?.config?.donwload_Id || 'No Download Id',         
+        };
+        return res.json(filteredResponse);
+      }
+      
+      // Otherwise return the full config
       res.json(config);
     } catch (error) {
       res.status(500).json({ message: error.message });
