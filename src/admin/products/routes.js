@@ -73,6 +73,5 @@ router.delete("/:id", productController.deleteProduct);
 // Search products by query (name, category, etc)
 router.post("/search", productController.searchProducts);
 
-
 module.exports = router;
  
