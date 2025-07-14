@@ -33,11 +33,11 @@ router.post('/favorites/remove', authUser, userController.removeFavorite);
 
 // Contact Us routes
 router.post('/contact', authUser, userController.submitContactForm);
-router.get('/contact-messages', authUser, userController.getContactMessages);
+router.get('/contact-messages', userController.getContactMessages);
 
 // Distributor Contact routes
 router.post('/distributor/contact', authUser, userController.submitDistributorContact);
-router.get('/distributor/contact', authUser, userController.getDistributorContacts);
+router.get('/distributor/contact', userController.getDistributorContacts);
 
 // Community Subscription routes
 router.post('/community/subscribe', communityController.subscribeToCommunity);

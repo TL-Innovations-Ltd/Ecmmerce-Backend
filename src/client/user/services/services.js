@@ -206,17 +206,11 @@ module.exports = {
     }
   },
   
-  getContactMessagesService: async (userId) => {
+  getContactMessagesService: async () => {
     try {
       
-      if (!userId) {
-        throw new Error('User ID is required');
-      }
-      
       // Only fetch messages for the specified user
-      const messages = await Contact.find({ userId })
-        .sort({ createdAt: -1 })
-        .lean();
+      const messages = await Contact.find({});
       
       return messages;
     } catch (error) {
@@ -237,10 +231,10 @@ submitDistributorContact: async (contactData) => {
   }
 },
 
-getDistributorContacts: async (userId) => {
+getDistributorContacts: async () => {
   try {
     
-    const contacts = await DistributorContact.find({ userId : userId});
+    const contacts = await DistributorContact.find({});
     return contacts;
 
     // const query = {};

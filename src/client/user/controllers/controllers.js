@@ -147,9 +147,9 @@ module.exports = {
       // if (startDate) filters.startDate = startDate;
       // if (endDate) filters.endDate = endDate;
       // if (search) filters.search = search;
-      const filters = req.user._id;
+      // const filters = req.user._id;
 
-      const messages = await getContactMessagesService(filters);
+      const messages = await getContactMessagesService();
 
       res.status(200).json({
         success: true,
@@ -218,15 +218,8 @@ module.exports = {
   // Get all distributor contacts (admin only)
   getDistributorContacts: async (req, res) => {
     try {
-      // Check if user is admin
-      if (!req.user) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. Admin privileges required.'
-        });
-      }
-     
-      const userId  = req.user._id;
+ 
+      // const userId  = req.user._id;
       // const { search, startDate, endDate, sortBy, sortOrder, page = 1, limit = 10 } = req.query;
       
       // const filters = {
@@ -239,7 +232,7 @@ module.exports = {
       //   limit: parseInt(limit)
       // };
 
-      const result = await getDistributorContacts(userId);
+      const result = await getDistributorContacts();
       
       res.status(200).json({
         success: true,
