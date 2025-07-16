@@ -96,6 +96,29 @@ class SlideshowController {
       }
     }
 
+    async uploadTesting(req, res) {
+      try {
+        if (!req.files || req.files.length === 0) {
+          return res.status(400).json({ 
+            success: false, 
+            message: 'No files uploaded' 
+          });
+        }
+        
+        const uploadResults = await SlideshowService.uploadMediaToTesting(req.files);
+        
+        res.status(200).json({
+          success: true,
+          data: uploadResults,
+        });
+      } catch (error) {
+        res.status(500).json({ 
+          success: false, 
+          message: `Error uploading files: ${error.message}` 
+        });
+      }
+    }
+
     // Get All Slideshows Images
     async getAllSlideshowsImages(req, res) {
       try {

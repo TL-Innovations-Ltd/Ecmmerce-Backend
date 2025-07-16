@@ -27,6 +27,24 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB per file
 });
 
+
+// Ensure uploads/screen_shot directory exists
+const screenShotDir = path.join(__dirname, '../../../uploads/screen_shot');
+if (!fs.existsSync(screenShotDir)) {
+  fs.mkdirSync(screenShotDir, { recursive: true });
+}
+
+const storage_test = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../../../uploads/screen_shot'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const upload_test = multer({ storage: storage_test });
+
 // Create or Update Slideshow
 router.post('/slideshows', SlideshowController.createOrUpdateSlideshow);
 
@@ -40,7 +58,9 @@ router.get('/customers/:customerId/slideshows', SlideshowController.getSlideshow
 router.delete('/slideshows/:id', SlideshowController.deleteSlideshow);
 
 // Upload Media to Cloudinary
-router.post('/upload-media', upload.array('media', 10), SlideshowController.uploadMedia);
+// router.post('/upload-media', upload.array('media', 10), SlideshowController.uploadMedia);
+router.post('/upload-media', upload_test.array('media', 10), SlideshowController.uploadTesting);
+
 
 router.get('/slideshows_images', SlideshowController.getAllSlideshowsImages);
 

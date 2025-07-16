@@ -109,6 +109,17 @@ class SlideshowService {
     }
   }
 
+  async  uploadMediaToTesting (files) {
+
+    const results = files.map(file => ({
+      url: `/uploads/screen_shot/${file.filename}`,
+      public_id: file.filename, // Use filename as unique ID for local files
+    }));
+
+    return results;
+
+  }
+
   // Get All Slideshows Images
   async getAllSlideshowsImages() {
      
