@@ -4,11 +4,7 @@ const userController = require('./controllers/controllers');
 const communityController = require('./controllers/community_controller');
 const authUser = require('../../../src/middleware/user_verify');
 const upload = require('../../../src/middleware/multer');
-
-
-// Public routes
-// router.post('/signup', userController.signup);
-// router.post('/login', userController.login);
+const analyticsController = require('./controllers/analytics.controller');
 
 // // Example of a protected route
 router.get('/profile', authUser, userController.getUserProfile);   // checked
@@ -42,5 +38,9 @@ router.get('/distributor/contact', userController.getDistributorContacts);
 // Community Subscription routes
 router.post('/community/subscribe', communityController.subscribeToCommunity);
 router.get('/community/subscriptions', communityController.getCommunitySubscriptions);
+
+// Analytics & Telemetry routes
+router.post('/slide_shows/analytics', analyticsController.saveAnalytics);
+router.get('/slide_shows/analytics', analyticsController.getAnalytics);
 
 module.exports = router;
