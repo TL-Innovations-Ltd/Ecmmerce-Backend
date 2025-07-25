@@ -9,6 +9,7 @@ const swaggerUi = require("swagger-ui-express");
 const connectDB = require("./src/utils/connection");
 const userRoutes = require("./src/client/user/routes");
 const productRoutes = require("./src/admin/products/routes");
+const dashboardRoutes = require("./src/admin/dashboard/dashboard_routes");
 const cartRoutes = require("./src/client/cart/routes");
 const categoryRoutes = require("./src/admin/category/routes");
 const orderRoutes = require("./src/client/order/routes");
@@ -40,6 +41,7 @@ app.use("/test", (req, res) => {
 
 app.use("/client/user", userRoutes);
 app.use("/admin/products", productRoutes);
+app.use("/admin/dashboard", dashboardRoutes);
 app.use("/client/cart", cartRoutes);
 app.use("/admin/category", categoryRoutes);
 app.use("/client/order", orderRoutes);

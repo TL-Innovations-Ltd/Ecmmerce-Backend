@@ -27,7 +27,6 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB per file
 });
 
-
 // Ensure uploads/screen_shot directory exists
 const screenShotDir = path.join(__dirname, '../../../uploads/screen_shot');
 if (!fs.existsSync(screenShotDir)) {
@@ -60,7 +59,6 @@ router.delete('/slideshows/:id', SlideshowController.deleteSlideshow);
 // Upload Media to Cloudinary
 // router.post('/upload-media', upload.array('media', 10), SlideshowController.uploadMedia);
 router.post('/upload-media', upload_test.array('media', 10), SlideshowController.uploadTesting);
-
 
 router.get('/slideshows_images', SlideshowController.getAllSlideshowsImages);
 

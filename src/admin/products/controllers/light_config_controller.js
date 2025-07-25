@@ -42,7 +42,8 @@ class LightConfigController {
         const filteredResponse = {
           name: config?.name,
           light_type: config?.config?.light_type,
-          download_Id : config?.config?.download_Id,         
+          download_Id : config?.config?.download_Id,
+          // image : config?.thumbnail?.url         
         };
         return res.json(filteredResponse);
       }

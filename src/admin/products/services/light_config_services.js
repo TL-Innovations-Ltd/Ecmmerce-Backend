@@ -88,9 +88,6 @@ class LightConfigService {
    */
   async getAllConfigs() {
     try {
-   
-   
-      
       // Get all matching configs
       const configs = await LightConfig.find({}).sort({ createdAt: -1 }).lean();
       
