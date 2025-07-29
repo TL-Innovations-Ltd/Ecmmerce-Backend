@@ -1,7 +1,7 @@
 
 const {envPath} = require("./src/config/env");
 require('dotenv').config({ path: envPath });
-
+const path  = require("path");
 
 const express = require("express");
 const cors = require("cors");
@@ -34,6 +34,7 @@ connectDB();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/uploads', express.static('uploads'));
+app.use('/uploads/screen_shot', express.static(path.join(__dirname, 'uploads/screen_shot')));
 
 app.use("/test", (req, res) => {
   res.status(200).json({ message: "Ecommerce Backend Deployed Successfully", port: process.env.PORT });
