@@ -5,9 +5,11 @@ const communityController = require('./controllers/community_controller');
 const authUser = require('../../../src/middleware/user_verify');
 const upload = require('../../../src/middleware/multer');
 const analyticsController = require('./controllers/analytics.controller');
+const { cache } = require('../../utils/redisCache');
 
-// // Example of a protected route
-router.get('/profile', authUser, userController.getUserProfile);   // checked
+const FIVE_MINUTES = 5 * 60; // 5 minutes in seconds
+
+router.get('/profile', authUser, cache(FIVE_MINUTES, 'user'), userController.getUserProfile); // caches for 5 minutes
 
 // Update profile route (protected)
 router.put('/profile', authUser, userController.updateProfile);  

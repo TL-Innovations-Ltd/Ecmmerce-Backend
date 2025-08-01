@@ -15,7 +15,11 @@ const categoryRoutes = require("./src/admin/category/routes");
 const orderRoutes = require("./src/client/order/routes");
 const slideshowsRoutes = require("./src/admin/slides_show/routes");
 const swaggerSpec = require("./swagger");
+require("./src/config/redis");
 const app = express();
+
+// Serve static files for profile pictures
+app.use('/uploads/profile_picture', express.static(path.join(__dirname, 'uploads/profile_picture')));
 
 // Middleware
 app.use(

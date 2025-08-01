@@ -64,15 +64,16 @@ module.exports = {
     try {
       const  userId  = req.user._id;
       const profileData = req.body;
-      console.log(profileData);
       const result = await updateProfileService(userId, profileData);
+      // Clear cache for this user
+      await clearCache('user', req.user._id)
       res.json(result);
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
   },
 
-  updateProfilePicture: async (req, res) => {
+  updateProfilePicture : async (req, res) => {
     //hello
     try {
       const userId  = req.user._id;
@@ -82,7 +83,7 @@ module.exports = {
       }
 
       const result = await updateProfilePictureService(userId, req.file);
-      res.json(result);
+      res.json({ success: true, imageUrl: result.imageUrl });
     } catch (err) {
       console.error('Error in updateProfilePicture:', err);
       res.status(500).json({ 
@@ -92,7 +93,7 @@ module.exports = {
     }
   },
 
-  removeProfilePicture: async (req, res) => {
+  removeProfilePicture : async (req, res) => {
     try {
       const userId  = req.user._id;
       const result = await removeProfilePictureService(userId);
@@ -107,7 +108,7 @@ module.exports = {
   },
 
   // Get user profile
-  getUserProfile: async (req, res) => {
+  getUserProfile : async (req, res) => {
     try {
       const user = await getUserProfileService(req.user._id);
       res.json({
@@ -120,7 +121,7 @@ module.exports = {
   },
 
   // Submit contact form
-  submitContactForm: async (req, res) => {
+  submitContactForm : async (req, res) => {
     try {
       const userId  = req.user._id;
   
@@ -139,7 +140,7 @@ module.exports = {
   },
 
   // Get contact messages (protected route - admin only)
-  getContactMessages: async (req, res) => {
+  getContactMessages : async (req, res) => {
     try {
       // const { startDate, endDate, search } = req.query;
 
@@ -167,7 +168,7 @@ module.exports = {
    
 
   // Submit distributor contact form (public endpoint)
-  submitDistributorContact: async (req, res) => {
+  submitDistributorContact : async (req, res) => {
     try {
       const {
         name,
@@ -216,7 +217,7 @@ module.exports = {
   },
 
   // Get all distributor contacts (admin only)
-  getDistributorContacts: async (req, res) => {
+  getDistributorContacts : async (req, res) => {
     try {
  
       // const userId  = req.user._id;
