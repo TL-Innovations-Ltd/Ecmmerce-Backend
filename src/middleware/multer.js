@@ -1,6 +1,9 @@
 const multer = require('multer');
 const path = require('path');
 
+const fs = require('fs');
+
+
 
 // Use memory storage instead of disk storage
 // const storage = multer.memoryStorage();
@@ -24,11 +27,6 @@ const path = require('path');
 //     files: 1
 //   }
 // });
-
-
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
 // Ensure the directory exists
 const uploadDir = path.join(__dirname, '../../uploads/profile_picture');
