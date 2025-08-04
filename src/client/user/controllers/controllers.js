@@ -83,6 +83,8 @@ module.exports = {
       }
 
       const result = await updateProfilePictureService(userId, req.file);
+      // Clear cache for this user
+      await clearCache('user', req.user._id);
       res.json({ success: true, imageUrl: result.imageUrl });
     } catch (err) {
       console.error('Error in updateProfilePicture:', err);

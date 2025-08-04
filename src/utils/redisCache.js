@@ -6,6 +6,9 @@ const cache = (duration , category = 'default')  => {
         try {
             const userId = req.user?.id || 'guest';
             const path = (req.originalUrl || req.url).split('?')[0]; // Remove query params
+            console.log(req.url);
+            console.log(req.originalUrl);
+            console.log(req.path);
             const key = `cache:${category}:${userId}:${path}`;
             
             // Try to get cached data

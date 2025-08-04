@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const SlideshowController = require('./controllers/slide-show_controller');
+const { cache } = require('../../utils/redisCache');
 
 // Create uploads directory if it doesn't exist
 const uploadDir = 'uploads/slideshow/';
@@ -48,10 +49,10 @@ const upload_test = multer({ storage: storage_test });
 router.post('/slideshows', SlideshowController.createOrUpdateSlideshow);
 
 // Get Slideshow by ID
-router.get('/slideshows/:id', SlideshowController.getSlideshowById);
+router.get('/slideshows/:id', cache(5 * 60 , "slideshows")   ,  SlideshowController.getSlideshowById);
 
 // Get Slideshows by Customer ID
-router.get('/customers/:customerId/slideshows', SlideshowController.getSlideshowsByCustomerId);
+router.get('/customers/:customerId/slideshows', cache(5 * 60 , "slideshows") , SlideshowController.getSlideshowsByCustomerId);
 
 // Delete Slideshow
 router.delete('/slideshows/:id', SlideshowController.deleteSlideshow);

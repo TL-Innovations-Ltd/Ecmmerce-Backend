@@ -61,9 +61,6 @@ module.exports = {
 
   updateProfileService: async (userId, profileData) => {
     // profileData can contain phone, address, paymentMethods, and password
-   
-    
-
     const update = {};
     
     // Handle password update if provided

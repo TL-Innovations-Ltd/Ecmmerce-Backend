@@ -59,6 +59,8 @@ class SlideshowController {
     try {
       const { id } = req.params;
       await SlideshowService.deleteSlideshow(id);
+
+      await clearCache('slideshows', id);
       
       res.status(200).json({
         success: true,
