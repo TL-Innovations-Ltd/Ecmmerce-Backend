@@ -7,6 +7,7 @@ const { validateConfig, validateIdParam, validateUserIdParam } = require("./midd
 const lightConfigController = require("./controllers/light_config_controller");
 const productController = require("./controllers/product_controller");
 const authUser = require("../../middleware/user_verify");
+const {cache} = require("../../utils/redisCache");
 
 const uploadDir = "uploads/";
 
@@ -57,11 +58,11 @@ const upload = multer({
 
 // Light Configuration Routes
 router.post("/light-configs", validateConfig, lightConfigController.createConfig);
-router.get("/light-configs/:id", validateIdParam, lightConfigController.getConfig);
+router.get("/light-configs/:id", validateIdParam, cache(5 * 60 , "light-configs"), lightConfigController.getConfig);
 router.post("/users/light-configs", lightConfigController.getUserConfigs);
 router.put("/light-configs/:id", validateIdParam, validateConfig, authUser, lightConfigController.updateConfig);
 router.delete("/light-configs/:id", validateIdParam, lightConfigController.deleteConfig);
-router.get("/all-light-configs", lightConfigController.getAllConfigs);
+router.get("/all-light-configs", cache(5 * 60 , "light-configs"),  lightConfigController.getAllConfigs);
 
 // CRUD Product Routes
 router.post("/create", upload.array("images"), productController.createProduct);

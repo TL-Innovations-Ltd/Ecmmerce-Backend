@@ -3,6 +3,7 @@ const { validationResult } = require('express-validator');
 
 
 class LightConfigController {
+   
   async createConfig(req, res) {
     try {
       const errors = validationResult(req);
