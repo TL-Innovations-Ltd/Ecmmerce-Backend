@@ -14,17 +14,10 @@ module.exports = {
         .filter(Boolean)
     )];
 
-    if (cleaned.length === 0) {
-      const existing = await LightConfigWhishlist.findOne({ user_id: userId }).lean();
-      return { success: true, wishlist: existing?.wishlist || [] };
-    }
-
+    // Overwrite logic: replace the wishlist entirely with the provided array
     const doc = await LightConfigWhishlist.findOneAndUpdate(
       { user_id: userId },
-      {
-        $addToSet: { wishlist: { $each: cleaned } },
-        $setOnInsert: { user_id: userId }
-      },
+      { $set: { wishlist: cleaned }, $setOnInsert: { user_id: userId } },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     ).lean();
 
