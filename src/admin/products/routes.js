@@ -59,15 +59,16 @@ const upload = multer({
 
 // Light Configuration Routes
 router.post("/light-configs", validateConfig, lightConfigController.createConfig);
+
+// LightConfig Whishlist Routes (token required) - keep BEFORE :id routes
+router.post('/light-configs/wishlist', authUser, lightConfigWhishlistController.setWishlist);
+router.get('/light-configs/wishlist', authUser, lightConfigWhishlistController.getWishlist);
+
 router.get("/light-configs/:id", validateIdParam, cache(5 * 60 , "light-configs"), lightConfigController.getConfig);
 router.post("/users/light-configs", lightConfigController.getUserConfigs);
 router.put("/light-configs/:id", validateIdParam, validateConfig, authUser, lightConfigController.updateConfig);
 router.delete("/light-configs/:id", validateIdParam, lightConfigController.deleteConfig);
 router.get("/all-light-configs", cache(5 * 60 , "light-configs"),  lightConfigController.getAllConfigs);
-
-// LightConfig Whishlist Routes (token required)
-router.post('/light-configs/wishlist', authUser, lightConfigWhishlistController.setWishlist);
-router.get('/light-configs/wishlist', authUser, lightConfigWhishlistController.getWishlist);
 
 // CRUD Product Routes
 router.post("/create", upload.array("images"), productController.createProduct);

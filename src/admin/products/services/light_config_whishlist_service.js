@@ -14,7 +14,6 @@ module.exports = {
         .filter(Boolean)
     )];
 
-    // Overwrite logic: replace the wishlist entirely with the provided array
     const doc = await LightConfigWhishlist.findOneAndUpdate(
       { user_id: userId },
       { $set: { wishlist: cleaned }, $setOnInsert: { user_id: userId } },
