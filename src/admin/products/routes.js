@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const { validateConfig, validateIdParam, validateUserIdParam } = require("./middleware/light_config_validator");
 const lightConfigController = require("./controllers/light_config_controller");
+const lightConfigWhishlistController = require('./controllers/light_config_whishlist_controller');
 const productController = require("./controllers/product_controller");
 const authUser = require("../../middleware/user_verify");
 const {cache} = require("../../utils/redisCache");
@@ -63,6 +64,10 @@ router.post("/users/light-configs", lightConfigController.getUserConfigs);
 router.put("/light-configs/:id", validateIdParam, validateConfig, authUser, lightConfigController.updateConfig);
 router.delete("/light-configs/:id", validateIdParam, lightConfigController.deleteConfig);
 router.get("/all-light-configs", cache(5 * 60 , "light-configs"),  lightConfigController.getAllConfigs);
+
+// LightConfig Whishlist Routes (token required)
+router.post('/light-configs/wishlist', authUser, lightConfigWhishlistController.setWishlist);
+router.get('/light-configs/wishlist', authUser, lightConfigWhishlistController.getWishlist);
 
 // CRUD Product Routes
 router.post("/create", upload.array("images"), productController.createProduct);
