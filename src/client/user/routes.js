@@ -48,5 +48,6 @@ router.get('/slide_shows/analytics', analyticsController.getAnalytics);
 
 // Brochure email route (Limiai.co)
 router.post('/brochure_email', brochureController.requestBrochure);
+router.get('/brochure_email', brochureController.getBrochureRequests);
 
 module.exports = router;

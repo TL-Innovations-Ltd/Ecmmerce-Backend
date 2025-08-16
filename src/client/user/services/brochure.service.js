@@ -369,4 +369,13 @@ async function sendBrochureEmail(email) {
   }
 }
 
-module.exports = { sendBrochureEmail };
+async function Brochure_Email_Service() {
+  try {
+    const brochureRequests = await BrochureRequest.find({});
+    return brochureRequests;
+  } catch (error) {
+    throw new Error(error.message || 'Failed to retrieve brochure requests');
+  }
+}
+
+module.exports = { sendBrochureEmail, Brochure_Email_Service };
