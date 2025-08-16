@@ -5,6 +5,7 @@ const communityController = require('./controllers/community_controller');
 const authUser = require('../../../src/middleware/user_verify');
 const upload = require('../../../src/middleware/multer');
 const analyticsController = require('./controllers/analytics.controller');
+const brochureController = require('./controllers/brochure.controller');
 const { cache } = require('../../utils/redisCache');
 
 const FIVE_MINUTES = 5 * 60; // 5 minutes in seconds
@@ -44,5 +45,8 @@ router.get('/community/subscriptions', communityController.getCommunitySubscript
 // Analytics & Telemetry routes
 router.post('/slide_shows/analytics', analyticsController.saveAnalytics);
 router.get('/slide_shows/analytics', analyticsController.getAnalytics);
+
+// Brochure email route (Limiai.co)
+router.post('/brochure_email', brochureController.requestBrochure);
 
 module.exports = router;
