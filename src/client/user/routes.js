@@ -7,6 +7,7 @@ const upload = require('../../../src/middleware/multer');
 const analyticsController = require('./controllers/analytics.controller');
 const brochureController = require('./controllers/brochure.controller');
 const startJourneyController = require('./controllers/start_journey.controller');
+const limiaiContactController = require('./controllers/limiai_contact.controller');
 const { cache } = require('../../utils/redisCache');
 
 const FIVE_MINUTES = 5 * 60; // 5 minutes in seconds
@@ -54,5 +55,9 @@ router.get('/start_journey', startJourneyController.list);
 // Brochure email route (Limiai.co)
 router.post('/brochure_email', brochureController.requestBrochure);
 router.get('/brochure_email', brochureController.getBrochureRequests);
+
+// Limiai Contact routes (public)
+router.post('/limiai_contact', limiaiContactController.submit);
+router.get('/limiai_contact', limiaiContactController.list);
 
 module.exports = router;
