@@ -76,6 +76,65 @@ const storage = multer.diskStorage({
   },
 });
 
+// List assets with optional filters and pagination
+// Query params:
+// - category: models|images|videos
+// - q: substring search over filename and originalname
+// - tags: comma-separated list, matches any tag provided
+// - page: 1-based, default 1
+// - limit: default 20, max 100
+// - sort: createdAt (default desc). Use 'asc' or 'desc' via sortOrder
+router.get('/list', async (req, res) => {
+  try {
+    const { category, search, tags, page = '1', limit = '20', sort = 'createdAt', sortOrder = 'desc' } = req.query;
+
+    const filter = {};
+    if (category && ['models', 'images', 'videos'].includes(String(category))) {
+      filter.category = String(category);
+    }
+    if (search) {
+      const regex = new RegExp(String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      filter.$or = [{ filename: regex }, { originalname: regex }];
+    }
+    if (tags) {
+      const tagArray = Array.isArray(tags)
+        ? tags.map(String)
+        : String(tags)
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean);
+      if (tagArray.length) {
+        filter.tags = { $in: tagArray };
+      }
+    }
+
+    const p = Math.max(parseInt(page, 10) || 1, 1);
+    const l = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+    const skip = (p - 1) * l;
+    const order = String(sortOrder).toLowerCase() === 'asc' ? 1 : -1;
+
+    const [items, total] = await Promise.all([
+      Asset.find(filter)
+        .sort({ [sort]: order })
+        .skip(skip)
+        .limit(l)
+        .lean(),
+      Asset.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      message: 'Assets fetched successfully',
+      total,
+      page: p,
+      limit: l,
+      pages: Math.ceil(total / l) || 1,
+      items,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message || 'Failed to fetch assets' });
+  }
+});
+
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname || '').toLowerCase();
   if ([...MODEL_EXTS, ...IMAGE_EXTS, ...VIDEO_EXTS].includes(ext)) {
@@ -108,6 +167,24 @@ router.post('/upload', (req, res) => {
 
     try {
       const baseHost = envPath === '.env.dev' ? 'https://dev.api1.limitless-lighting.co.uk' : 'https://api1.limitless-lighting.co.uk';
+      // Parse optional metadata from body (multer parses text fields too)
+      const description = (req.body && req.body.description) ? String(req.body.description) : undefined;
+      let tags = [];
+      if (req.body && typeof req.body.tags !== 'undefined') {
+        const raw = req.body.tags;
+        if (Array.isArray(raw)) {
+          tags = raw.map(String);
+        } else if (typeof raw === 'string') {
+          const trimmed = raw.trim();
+          if (trimmed.startsWith('[')) {
+            try { const parsed = JSON.parse(trimmed); if (Array.isArray(parsed)) tags = parsed.map(String); } catch (_) {}
+          }
+          if (tags.length === 0) {
+            tags = trimmed.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        }
+      }
+
       const files = (req.files || []).map((f) => {
         // Build a public URL under /assets
         // Example: /assets/models/filename.ext
@@ -124,6 +201,8 @@ router.post('/upload', (req, res) => {
           path: f.path,
           url: fullUrl,
           category: sub,
+          description,
+          tags,
         };
       });
 

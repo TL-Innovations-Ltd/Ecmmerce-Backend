@@ -11,6 +11,8 @@ const assetSchema = new mongoose.Schema(
     destination: { type: String },
     path: { type: String, required: true },
     url: { type: String, required: true },
+    description: { type: String },
+    tags: { type: [String], default: [] },
   },
   { timestamps: true }
 );
