@@ -15,6 +15,7 @@ const categoryRoutes = require("./src/admin/category/routes");
 const orderRoutes = require("./src/client/order/routes");
 const slideshowsRoutes = require("./src/admin/slides_show/routes");
 const swaggerSpec = require("./swagger");
+const assetsRoutes = require("./src/admin/assests_managment/routes");
 require("./src/config/redis");
 const app = express();
 
@@ -38,6 +39,8 @@ connectDB();
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/uploads', express.static('uploads'));
+// Serve assets (3D models, images, videos) saved under uploads/assests
+app.use('/assets', express.static(path.join(__dirname, 'uploads/assests')));
 app.use('/uploads/screen_shot', express.static(path.join(__dirname, 'uploads/screen_shot')));
 
 app.use("/test", (req, res) => {
@@ -51,6 +54,8 @@ app.use("/client/cart", cartRoutes);
 app.use("/admin/category", categoryRoutes);
 app.use("/client/order", orderRoutes);
 app.use("/admin/slide", slideshowsRoutes);
+app.use("/admin/assets", assetsRoutes);
+app.use("/admin/assests_managment" , assetsRoutes);
 
 // Start Server
 app.listen(process.env.PORT, () => {
